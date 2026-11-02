@@ -42,6 +42,34 @@ def run(args,**kwargs):return subprocess.run(args,check=True,**kwargs)
 def build(args,**kwargs):return run(['runuser','-u',BUILD_USER,'--',*args],**kwargs)
 
 
+def github_commit():
+    request=urllib.request.Request('https://api.github.com/repos/Inferno-Dragon123/Lycee-Overture-/commits/main',headers={'User-Agent':'Lycee-V2-Deploy','Accept':'application/vnd.github+json'})
+    with urllib.request.urlopen(request,timeout=20) as response:commit=json.load(response)['sha']
+    if len(commit)!=40 or any(c not in '0123456789abcdef' for c in commit):raise ValueError('Invalid Git commit')
+    return commit
+
+
+def github_snapshot(commit):
+    if len(commit)!=40 or any(c not in '0123456789abcdef' for c in commit):raise ValueError('Invalid Git commit')
+    request=urllib.request.Request('https://codeload.github.com/Inferno-Dragon123/Lycee-Overture-/tar.gz/'+commit,headers={'User-Agent':'Lycee-V2-Deploy'})
+    with urllib.request.urlopen(request,timeout=120) as response:archive=response.read(100*1024*1024+1)
+    if len(archive)>100*1024*1024:raise ValueError('Repository archive exceeds deployment limit')
+    return unwrap_github_archive(archive,commit)
+
+
+def unwrap_github_archive(archive,commit):
+    prefix='Lycee-Overture--'+commit+'/'
+    output=io.BytesIO()
+    with tarfile.open(fileobj=io.BytesIO(archive),mode='r:gz') as bundle,tarfile.open(fileobj=output,mode='w') as result:
+        for item in bundle:
+            if item.isdir():continue
+            if not item.isfile() or not item.name.startswith(prefix):raise ValueError('Unexpected GitHub archive member')
+            name=item.name[len(prefix):]
+            if not safe_member(name):raise ValueError('Unsafe repository member')
+            info=tarfile.TarInfo(name);info.size=item.size;result.addfile(info,bundle.extractfile(item))
+    return output.getvalue()
+
+
 def safe_candidate_cleanup(path,current,release_root):
     return (path.parent.resolve()==release_root.resolve() and path.name.startswith('github-candidate-')
             and not path.is_symlink() and path.resolve()!=current.resolve())
@@ -217,16 +245,9 @@ def main():
     with (STATE/'deploy.lock').open('a') as lock:
         try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError:return
-        repository=STATE/'repository.git'
-        if not repository.exists():
-            repository.mkdir();account=pwd.getpwnam(BUILD_USER);os.chown(repository,account.pw_uid,account.pw_gid)
-            build(['git','init','--bare',str(repository)])
-            build(['git','--git-dir='+str(repository),'remote','add','origin',REPOSITORY])
-        if build(['git','--git-dir='+str(repository),'remote','get-url','origin'],capture_output=True,text=True).stdout.strip()!=REPOSITORY:raise ValueError('Git origin binding changed')
-        remote=build(['git','ls-remote',REPOSITORY,'refs/heads/main'],capture_output=True,text=True).stdout.strip()
-        if not remote:write_status({'state':'waiting-for-main','repository':REPOSITORY});return
-        commit=remote.split()[0]
-        if len(commit)!=40 or any(c not in '0123456789abcdef' for c in commit):raise ValueError('Invalid Git commit')
+        try:commit=github_commit()
+        except Exception as error:
+            write_status({'state':'connection-failed','repository':REPOSITORY,'error':str(error)[:300]});return
         current=json.loads((BASE/'current/release-manifest.json').read_text())
         if current.get('githubCommit')==commit:
             write_status({'state':'current','repository':REPOSITORY,'commit':commit,'release':str((BASE/'current').resolve())});return
@@ -235,10 +256,7 @@ def main():
         target=BASE/'releases'/('github-candidate-'+commit[:12]+'-'+str(os.getpid()))
         try:
             write_status({'state':'building','repository':REPOSITORY,'commit':commit})
-            build(['git','--git-dir='+str(repository),'fetch','--depth=1','origin','refs/heads/main'])
-            fetched=build(['git','--git-dir='+str(repository),'rev-parse','FETCH_HEAD'],capture_output=True,text=True).stdout.strip()
-            if fetched!=commit:raise ValueError('main changed during fetch; retry next check')
-            archive=build(['git','--git-dir='+str(repository),'archive','--format=tar',commit],capture_output=True).stdout
+            archive=github_snapshot(commit)
             target.mkdir();source,css_hash=extract_snapshot(archive,target,config)
             account=pwd.getpwnam(BUILD_USER)
             for directory,dirs,files in os.walk(target):

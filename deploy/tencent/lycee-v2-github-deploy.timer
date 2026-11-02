@@ -3,7 +3,7 @@ Description=Check Lycee V2 GitHub main for deployment
 
 [Timer]
 OnBootSec=30s
-OnUnitInactiveSec=60s
+OnUnitInactiveSec=90s
 RandomizedDelaySec=5s
 Unit=lycee-v2-github-deploy.service
 
