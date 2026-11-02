@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "repository": "https://github.com/Inferno-Dragon123/Lycee-Overture-.git",
-  "sourceCommit": "07913f8cbaa7280599a44a7dcd5c80d1d25e69bd",
+  "sourceCommit": "8caad60d9e9e40d1d1809a61f59700ef24e5bfda",
   "buildReady": true,
   "files": {
     ".env.example": "f1493d158f5351e866daa393e7f95998344b36bd408c5df79e9532685b1b7d97",
@@ -147,7 +147,7 @@
     "deploy/tencent/lycee-v2-maintenance.timer": "56c56063b2ca127364f329089e512c2a40fd34814061440f0cda17db4ccc0023",
     "deploy/tencent/lycee-v2.nginx.conf": "b108c95b2cd89b65cfb63cf2282ea318d6317431feedeaf87104674349ba0905",
     "deploy/tencent/lycee-v2.service": "2f80fe7d82f6f820ec20036e6539504b2e17c0edd9d33a6554fc6d52ff9644ce",
-    "deploy/tencent/native-backup.py": "b6ff5963f3d45f1b0bfe29a143025f9f31e4fd203527c53426cd2f7dd4a341b6",
+    "deploy/tencent/native-backup.py": "800f07da3b38d5e1202db590f3b80a2c2dcefd714b4e1fd10d2dff2a44ff99f3",
     "deploy/tencent/native-catalog.sql": "7a27241e49a6ffe02e3a2b1cb322e7757d267637acf74e20c19deb65b9638948",
     "deploy/tencent/workflow_owners.py": "5a2a5c4ed58cee03be61e32575a59f5bd18f8f1180a98ca2559bc75b8a4cb9b4",
     "docs/research/series-abbreviations.json": "ada431f4f916830960f841258219ed93b9c84c5ee790c07e76bd63a1d56fbb63",

@@ -50,8 +50,9 @@ with tempfile.TemporaryDirectory(prefix='plain-',dir=directory) as raw:
         with tarfile.open(fileobj=plain,mode='w') as bundle:
             for filename in ['workflow.sqlite','postgres.dump','verification.json']:bundle.add(temporary/filename,arcname=filename)
             bundle.add(release/'release-manifest.json',arcname='release-manifest.json')
-            for name in ['runtime.env','auth.env','maintenance.env','native.env','native-config.json']:
+            for name in ['runtime.env','auth.env','maintenance.env','native.env','native-config.json','git-deploy.json']:
                 file=pathlib.Path('/etc/lycee-v2')/name
+                if name=='git-deploy.json' and not file.exists():continue
                 assert file.is_file() and file.stat().st_uid==0 and not file.stat().st_mode&0o077,'Private config permissions required'
                 bundle.add(file,arcname='private/'+name)
             for file in [pathlib.Path('/etc/lycee/dnspod.json'),pathlib.Path('/etc/lycee/cos-backup.json')]:
