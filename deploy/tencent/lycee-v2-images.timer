@@ -1,0 +1,8 @@
+[Unit]
+Description=Daily Lycee V2 image mirror retry
+[Timer]
+OnCalendar=*-*-* 05:20:00 Asia/Shanghai
+Persistent=true
+RandomizedDelaySec=120
+[Install]
+WantedBy=timers.target

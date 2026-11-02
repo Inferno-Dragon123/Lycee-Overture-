@@ -1,0 +1,8 @@
+<script setup lang="ts">
+import {NodeViewWrapper,nodeViewProps} from '@tiptap/vue-3';
+import {strategyLayoutCss,strategyStyleCss} from '#shared/domain/strategy';
+import StrategyObjectTools from './StrategyObjectTools.vue';
+import ObjectTextStyle from './ObjectTextStyle.vue';
+const props=defineProps(nodeViewProps),ctx=inject<any>('strategy-editor-context'),preview=ref<any>(null);
+</script>
+<template><NodeViewWrapper class="strategy-node strategy-media" data-strategy-media :style="strategyLayoutCss(preview||node.attrs.layout)" contenteditable="false"><StrategyObjectTools label="图片操作" media :layout="node.attrs.layout" :disabled="!editor.isEditable" @preview="preview=$event" @layout="layout=>updateAttributes({layout})"><figure class="strategy-image"><a :href="node.attrs.src" target="_blank" rel="noopener noreferrer"><img :src="node.attrs.src" :alt="node.attrs.alt||''" /></a><figcaption v-if="node.attrs.title" :style="strategyStyleCss(node.attrs.textStyle)">{{ node.attrs.title }}</figcaption></figure><template #actions><button type="button" @click="ctx.caption(getPos)">图片说明</button><button type="button" @click="ctx.replaceImage(getPos)">替换图片</button><ObjectTextStyle :value="node.attrs.textStyle" @change="value=>updateAttributes({textStyle:value})" /><button type="button" :disabled="!ctx.canMove(getPos,-1)" @click="ctx.moveObject(getPos,-1)">上移一段</button><button type="button" :disabled="!ctx.canMove(getPos,1)" @click="ctx.moveObject(getPos,1)">下移一段</button><button type="button" data-drag-handle draggable="true">拖动排序</button><button type="button" @click="deleteNode">删除图片</button></template></StrategyObjectTools></NodeViewWrapper></template>

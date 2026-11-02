@@ -1,0 +1,13 @@
+[Unit]
+Description=Lycee V2 consistent local database backup
+
+[Service]
+Type=oneshot
+User=lycee-v2
+Group=lycee-v2
+ExecStart=/usr/bin/python3 /opt/lycee-v2/current/deploy/tencent/backup.py
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/backups/lycee-v2

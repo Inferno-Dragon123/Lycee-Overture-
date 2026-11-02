@@ -1,0 +1,20 @@
+[Unit]
+Description=Lycee V2 incremental card image mirror
+After=network-online.target
+[Service]
+Type=oneshot
+User=lycee-assets
+Group=lycee-assets
+WorkingDirectory=/var/lib/lycee-v2-maintenance/work
+Environment=IMAGE_STORAGE_DIR=/var/lib/lycee/images
+ExecStart=/usr/bin/flock -n /var/lib/lycee/images/.v2-maintenance.lock /usr/local/bin/node scripts/mirror-card-images.js --limit 100
+ReadWritePaths=/var/lib/lycee/images
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+Nice=10
+MemoryMax=384M
+CPUQuota=35%
+TimeoutStartSec=2h
+UMask=0022

@@ -1,0 +1,31 @@
+[Unit]
+Description=Lycee Overture V2
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lycee-v2
+Group=lycee-v2
+WorkingDirectory=/opt/lycee-v2/current
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3200
+Environment=NUXT_WORKFLOW_DATABASE_PATH=/var/lib/lycee-v2/workflow.sqlite
+Environment=NUXT_WORKFLOW_PUBLIC_ORIGIN=https://v2.preview.lycee-toolbox.top
+Environment=NUXT_WORKFLOW_AUTH_ORIGIN=
+EnvironmentFile=-/etc/lycee-v2/runtime.env
+EnvironmentFile=-/etc/lycee-v2/native.env
+ExecStart=/usr/local/bin/node .output/server/index.mjs
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/lycee-v2
+MemoryMax=768M
+
+[Install]
+WantedBy=multi-user.target

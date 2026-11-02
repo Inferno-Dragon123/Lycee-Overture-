@@ -1,0 +1,148 @@
+/* Official homepage: two emblems, each with 108s / 54s clockwise layers and a fixed center.
+   Keep tuning here; original PNG alpha masks preserve the artwork without raster edits. */
+.concept-orbit.a-inner {
+  --orbit-outer-period: 108s;
+  --orbit-inner-period: 54s;
+  --orbit-size: clamp(680px, 76vw, 1120px);
+  --orbit-opacity: 0.85;
+  --orbit-outer-color: #aed08f;
+  --orbit-inner-color: #81b8a9;
+  --orbit-center-color: #d3e4bf;
+  --inner-panel: color-mix(in srgb, var(--surface) 64%, transparent);
+  --inner-panel-strong: color-mix(in srgb, var(--surface) 88%, transparent);
+  position: relative;
+  isolation: isolate;
+}
+.concept-orbit.a-inner.a-light {
+  --orbit-opacity: 0.65;
+  --orbit-outer-color: #60833c;
+  --orbit-inner-color: #498b7a;
+  --orbit-center-color: #46682b;
+  --inner-panel: color-mix(in srgb, var(--surface) 60%, transparent);
+  --inner-panel-strong: color-mix(in srgb, var(--surface) 90%, transparent);
+}
+.a-official-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  contain: strict;
+  background:
+    radial-gradient(ellipse at 4% 65%, #44634e18, transparent 60%),
+    radial-gradient(ellipse at 96% 12%, #436d631a, transparent 55%);
+}
+.a-orbit-emblem {
+  position: absolute;
+  width: var(--orbit-size);
+  aspect-ratio: 735 / 734;
+  transform: translate(-50%, -50%);
+  opacity: var(--orbit-opacity);
+}
+.a-orbit-left {
+  left: calc(50% - min(43vw, 610px));
+  top: 64%;
+}
+.a-orbit-right {
+  left: calc(50% + min(43vw, 610px));
+  top: 9%;
+}
+.a-orbit-layer {
+  position: absolute;
+  inset: 0;
+  mask-position: center;
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  animation: a-official-rotate var(--orbit-outer-period) linear infinite;
+}
+.a-orbit-outer {
+  background: var(--orbit-outer-color);
+  mask-image: url('/design/official-background/background2.png');
+}
+.a-orbit-inner {
+  background: var(--orbit-inner-color);
+  mask-image: url('/design/official-background/background3.png');
+  animation-duration: var(--orbit-inner-period);
+}
+.a-orbit-center {
+  /* Official offsets: 253 / 735 horizontally, 253 / 734 vertically. */
+  inset: 34.4687% auto auto 34.4218%;
+  width: 30.8844%;
+  height: 31.0627%;
+  background: var(--orbit-center-color);
+  mask-image: url('/design/official-background/background5.png');
+  animation: none;
+}
+.a-official-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    color-mix(in srgb, var(--bg) 48%, transparent),
+    transparent 72%
+  );
+}
+/* Content stays open to the background; readable surfaces are local to controls. */
+.a-inner .p-main,
+.a-inner .p-section,
+.a-inner .p-catalog-results {
+  background: transparent;
+}
+.a-inner .p-footer {
+  background: color-mix(in srgb, var(--bg) 56%, transparent);
+}
+.a-inner :is(.p-catalog-search, .p-tool-preview, .p-tool-options,
+  .p-learning-diagram, .p-video-placeholder, .p-group-grid article,
+  .p-login-card, .p-editor textarea) {
+  background: var(--inner-panel);
+}
+.a-inner :is(.p-catalog-search, .p-tool-options, .p-group-grid article, .p-editor textarea) {
+  backdrop-filter: blur(8px);
+}
+.a-inner .p-tool-tabs {
+  background: color-mix(in srgb, var(--surface) 42%, transparent);
+}
+.a-inner .p-series-cover-art {
+  background: var(--inner-panel);
+}
+.a-inner .p-deck-drawer,
+.a-inner .p-menu {
+  background: var(--inner-panel-strong);
+  backdrop-filter: blur(16px);
+}
+.a-inner .p-filter-sheet {
+  background: var(--inner-panel);
+}
+/* Keep the current angle when pausing, including the global motion override. */
+.concept.a-inner.p-motion-off .a-official-background .a-orbit-layer,
+.a-official-background.is-paused .a-orbit-layer {
+  animation-play-state: paused !important;
+}
+.concept.a-inner.p-motion-off .a-orbit-outer {
+  animation: a-official-rotate var(--orbit-outer-period) linear infinite paused !important;
+}
+.concept.a-inner.p-motion-off .a-orbit-inner {
+  animation: a-official-rotate var(--orbit-inner-period) linear infinite paused !important;
+}
+@keyframes a-official-rotate {
+  to { transform: rotate(360deg); }
+}
+@media (max-width: 600px) {
+  .concept-orbit.a-inner {
+    --orbit-size: 680px;
+    --orbit-opacity: 0.7;
+  }
+  .concept-orbit.a-inner.a-light { --orbit-opacity: 0.55; }
+  .a-orbit-left { left: -14%; top: 70%; }
+  .a-orbit-right { left: 110%; top: 12%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .concept.a-inner .a-orbit-outer {
+    animation: a-official-rotate var(--orbit-outer-period) linear infinite paused !important;
+  }
+  .concept.a-inner .a-orbit-inner {
+    animation: a-official-rotate var(--orbit-inner-period) linear infinite paused !important;
+  }
+}

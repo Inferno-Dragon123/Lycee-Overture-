@@ -1,0 +1,920 @@
+{
+  "cards": [
+    {
+      "code": "LO-4865-S",
+      "name": "現代に生きる忍者 常陸 茉子",
+      "img": "/design/cards/LO-4865-S.png",
+      "category": "キャラクター",
+      "rarity": "SP",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日日日",
+      "costTotal": 4,
+      "position": "",
+      "ap": 4,
+      "dp": 3,
+      "sp": 0,
+      "dmg": 3,
+      "trait": "",
+      "version": "ゆずソフト 3.0(YUZ)",
+      "brand": "YUZ",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-4865-S",
+      "identityId": null,
+      "series": "YUZ",
+      "textJa": "[チャージ:２][ステップ:[0]]\n  [宣言] [0]:自ターン中に使用する。バトル中に使用できない。{コストが３～４点の味方[日]キャラ１体}にＡＰ＋２する。\n[宣言] [0]:相手ターン中に使用する。バトル中に使用できない。このキャラを未行動にし、{味方ＤＦ}に移動する。\n[コスト] このキャラのチャージ１枚を破棄する。破棄したとき、自分のデッキを１枚破棄し、[日日]を発生する。このコストはコストが３～４点の[日]キャラの登場にのみ支払える。",
+      "textZh": "[充能:２][移动:[0]]\n  [宣言] [0]:己方回合中使用。战斗中不能使用。对{费用3～4点的己方1名[日]角色}施加AP＋2。\n[宣言] [0]:对方回合中使用。战斗中不能使用。将此角色变为未行动，并移动到{己方DF}。\n[COST能力] 破弃此角色的1枚充能。破弃时，破弃自己卡组1张，产生[日日]。该费用仅可用于支付费用3～4点的[日]角色的登场。"
+    },
+    {
+      "code": "LO-4866",
+      "name": "幼刀 ムラサメ",
+      "img": "/design/cards/LO-4866.png",
+      "category": "キャラクター",
+      "rarity": "SR",
+      "attribute": "日",
+      "ex": 1,
+      "cost": "日日日",
+      "costTotal": 3,
+      "position": "",
+      "ap": 3,
+      "dp": 1,
+      "sp": 1,
+      "dmg": 3,
+      "trait": "",
+      "version": "ゆずソフト 3.0(YUZ)",
+      "brand": "YUZ",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-4866",
+      "identityId": null,
+      "series": "YUZ",
+      "textJa": "[ステップ:[0]]\n  [誘発] このキャラが手札から登場したとき、１枚ドローする。自分にシールド＋１する。以下から１つを選び処理する。\n・１枚ドローする。\n・自分のゴミ箱または自分のデッキからＥＸが２でＤＭＧが３以上のキャラ１体を探し公開して手札に入れる。（ゲーム中１回まで選択可能）\n[宣言] [0]:{味方キャラ１体}にＡＰ＋１する。\n構築制限:【日】【キャラはコストが３点以上】",
+      "textZh": "[移动:[0]]\n  [誘発] 此角色从手牌登场时，抽1张牌。给自己＋1护盾。从以下选择1项处理。\n・抽1张牌。\n・从自己弃牌堆或自己卡组中寻找EX为2且DMG为3以上的角色1名，公开加入手牌。(游戏中最多可选1次)\n[宣言] [0]:对{己方1名角色}施加AP＋1。\n构筑限制:【日】【角色为费用3点以上】"
+    },
+    {
+      "code": "LO-6852-S",
+      "name": "禁忌の代償 聖 橘花",
+      "img": "/design/cards/LO-6852-S.png",
+      "category": "キャラクター",
+      "rarity": "SP",
+      "attribute": "月",
+      "ex": 2,
+      "cost": "月月月",
+      "costTotal": 3,
+      "position": "",
+      "ap": 0,
+      "dp": 4,
+      "sp": 2,
+      "dmg": 0,
+      "trait": "",
+      "version": "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(SP)",
+      "brand": "SP",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6852-S",
+      "identityId": null,
+      "series": "SP",
+      "textJa": "[ジャンプ:[0]][チャージ:１]\n[宣言] [C1]: {相手キャラ１体}にＡＰ－２・ＤＰ－２する。\n[誘発] 自ターン開始時またはこのキャラが登場したとき、自分のゴミ箱のカード１枚をカードが３枚以下の自分の「青春カウント」置き場に置ける。置いたとき、１枚ドローする。その置き場の枚数が４枚以上の場合、このキャラをデッキの下に置く。\n[コスト] [月月]を発生する。この能力は失われる。",
+      "textZh": "[跳跃:[0]][充能:１]\n[宣言] [C1]: {对方角色１个}获得ＡＰ－２・ＤＰ－２。\n[诱发] 自回合开始时或这个角色登场时，可以将自己弃牌堆的１张卡放置到卡为３张以下的自己的「青春カウント」放置区。放置时，抽１张卡。该放置区的张数为４张以上的情况下，将这个角色放置到卡组最下方。\n[COST能力] 产生[月月]。这个能力失去。"
+    },
+    {
+      "code": "LO-6852",
+      "name": "禁忌の代償 聖 橘花",
+      "img": "/design/cards/LO-6852.png",
+      "category": "キャラクター",
+      "rarity": "SR",
+      "attribute": "月",
+      "ex": 2,
+      "cost": "月月月",
+      "costTotal": 3,
+      "position": "",
+      "ap": 0,
+      "dp": 4,
+      "sp": 2,
+      "dmg": 0,
+      "trait": "",
+      "version": "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(SP)",
+      "brand": "SP",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6852",
+      "identityId": null,
+      "series": "SP",
+      "textJa": "[ジャンプ:[0]][チャージ:１]\n[宣言] [C1]: {相手キャラ１体}にＡＰ－２・ＤＰ－２する。\n[誘発] 自ターン開始時またはこのキャラが登場したとき、自分のゴミ箱のカード１枚をカードが３枚以下の自分の「青春カウント」置き場に置ける。置いたとき、１枚ドローする。その置き場の枚数が４枚以上の場合、このキャラをデッキの下に置く。\n[コスト] [月月]を発生する。この能力は失われる。",
+      "textZh": "[跳跃:[0]][充能:１]\n[宣言] [C1]: {对方角色１个}获得ＡＰ－２・ＤＰ－２。\n[诱发] 自回合开始时或这个角色登场时，可以将自己弃牌堆的１张卡放置到卡为３张以下的自己的「青春カウント」放置区。放置时，抽１张卡。该放置区的张数为４张以上的情况下，将这个角色放置到卡组最下方。\n[COST能力] 产生[月月]。这个能力失去。"
+    },
+    {
+      "code": "LO-4710-S",
+      "name": "夢綴る空想の紡ぎ手 鈴木 佳奈",
+      "img": "/design/cards/LO-4710-S.png",
+      "category": "キャラクター",
+      "rarity": "SP",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日",
+      "costTotal": 2,
+      "position": "",
+      "ap": 2,
+      "dp": 0,
+      "sp": 1,
+      "dmg": 3,
+      "trait": "",
+      "version": "オーガスト 3.0(AUG)",
+      "brand": "AUG",
+      "illustrator": "-",
+      "team": "",
+      "printingId": "LO-4710-S",
+      "identityId": null,
+      "series": "AUG",
+      "textJa": "[誘発] このキャラが手札から登場したとき、またはこのキャラの元の能力で破棄したとき、またはダウンしたとき、自分のゴミ箱または自分のデッキからこのキャラと同番号のキャラ１体を探し除外できる。除外したとき、自分のデッキの上のカード２枚を見て、そのうち１枚を手札に入れる。\n[宣言] [0]:自ターン中に使用する。このキャラにＡＰ＋１・ＤＰ－１する。\n[宣言] [0]:相手の宣言に対応して使用できない。このキャラを破棄する。自分にシールド＋１する。",
+      "textZh": "[誘発] 此角色从手牌登场时、因此角色的原能力被破弃时，或倒下时，可以从自己弃牌堆或自己卡组中寻找与此角色同编号的角色1名并除外。除外时，查看自己卡组上方的2张牌，将其中的1张加入手牌。\n[宣言] [0]:己方回合中使用。对此角色施加AP＋1・DP－1。\n[宣言] [0]:不能对应对方宣言使用。破弃此角色。给自己＋1护盾。"
+    },
+    {
+      "code": "LO-4710",
+      "name": "夢綴る空想の紡ぎ手 鈴木 佳奈",
+      "img": "/design/cards/LO-4710.png",
+      "category": "キャラクター",
+      "rarity": "SR",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日",
+      "costTotal": 2,
+      "position": "",
+      "ap": 2,
+      "dp": 0,
+      "sp": 1,
+      "dmg": 3,
+      "trait": "",
+      "version": "オーガスト 3.0(AUG)",
+      "brand": "AUG",
+      "illustrator": "-",
+      "team": "",
+      "printingId": "LO-4710",
+      "identityId": null,
+      "series": "AUG",
+      "textJa": "[誘発] このキャラが手札から登場したとき、またはこのキャラの元の能力で破棄したとき、またはダウンしたとき、自分のゴミ箱または自分のデッキからこのキャラと同番号のキャラ１体を探し除外できる。除外したとき、自分のデッキの上のカード２枚を見て、そのうち１枚を手札に入れる。\n[宣言] [0]:自ターン中に使用する。このキャラにＡＰ＋１・ＤＰ－１する。\n[宣言] [0]:相手の宣言に対応して使用できない。このキャラを破棄する。自分にシールド＋１する。",
+      "textZh": "[誘発] 此角色从手牌登场时、因此角色的原能力被破弃时，或倒下时，可以从自己弃牌堆或自己卡组中寻找与此角色同编号的角色1名并除外。除外时，查看自己卡组上方的2张牌，将其中的1张加入手牌。\n[宣言] [0]:己方回合中使用。对此角色施加AP＋1・DP－1。\n[宣言] [0]:不能对应对方宣言使用。破弃此角色。给自己＋1护盾。"
+    },
+    {
+      "code": "LO-2754-S",
+      "name": "ゆりっぺ 仲村 ゆり",
+      "img": "/design/cards/LO-2754-S.png",
+      "category": "キャラクター",
+      "rarity": "SP",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日",
+      "costTotal": 2,
+      "position": "●●●\n－－－",
+      "ap": 3,
+      "dp": 0,
+      "sp": 1,
+      "dmg": 3,
+      "trait": "死んだ世界戦線",
+      "version": "ビジュアルアーツ 3.0(VA)",
+      "brand": "VA",
+      "illustrator": "-",
+      "team": "",
+      "printingId": "LO-2754-S",
+      "identityId": null,
+      "series": "VA",
+      "textJa": "[アシスト][サイドステップ:[0]]\n  [誘発] このキャラが登場したとき、自分のゴミ箱または自分のデッキから「神への復讐」１枚を探し味方フィールドに無償で配置できる。\n[誘発] 自ターン終了時、このキャラの下に自分のゴミ箱のカード１枚を置く。下のカードが３枚以上の場合、このキャラを自分の「卒業」置き場に置く。置いたとき、自分のゴミ箱または自分のデッキから「仲村ゆり」を除くＥＸが２のキャラ１体を探しこのキャラが登場していたフィールドに登場できる。",
+      "textZh": "[辅助][横向侧移:[0]]\n  [誘発] 此角色登场时，可从自己的弃牌堆或自己的卡组中检索「神への復讐」1张，免费配置到己方场地。\n[誘発] 自己的回合结束时，将自己弃牌堆中的1张卡牌放到此角色下方。下方的卡牌为３张以上的情况下，将此角色放到自己的「卒業」放置区。放置时，可从自己的弃牌堆或自己的卡组中检索「仲村ゆり」以外的ＥＸ为２的角色1名，登场到此角色登场过的场地。"
+    },
+    {
+      "code": "LO-2754",
+      "name": "ゆりっぺ 仲村 ゆり",
+      "img": "/design/cards/LO-2754.png",
+      "category": "キャラクター",
+      "rarity": "SR",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日",
+      "costTotal": 2,
+      "position": "●●●\n－－－",
+      "ap": 3,
+      "dp": 0,
+      "sp": 1,
+      "dmg": 3,
+      "trait": "死んだ世界戦線",
+      "version": "ビジュアルアーツ 3.0(VA)",
+      "brand": "VA",
+      "illustrator": "-",
+      "team": "",
+      "printingId": "LO-2754",
+      "identityId": null,
+      "series": "VA",
+      "textJa": "[アシスト][サイドステップ:[0]]\n  [誘発] このキャラが登場したとき、自分のゴミ箱または自分のデッキから「神への復讐」１枚を探し味方フィールドに無償で配置できる。\n[誘発] 自ターン終了時、このキャラの下に自分のゴミ箱のカード１枚を置く。下のカードが３枚以上の場合、このキャラを自分の「卒業」置き場に置く。置いたとき、自分のゴミ箱または自分のデッキから「仲村ゆり」を除くＥＸが２のキャラ１体を探しこのキャラが登場していたフィールドに登場できる。",
+      "textZh": "[辅助][横向侧移:[0]]\n  [誘発] 此角色登场时，可从自己的弃牌堆或自己的卡组中检索「神への復讐」1张，免费配置到己方场地。\n[誘発] 自己的回合结束时，将自己弃牌堆中的1张卡牌放到此角色下方。下方的卡牌为３张以上的情况下，将此角色放到自己的「卒業」放置区。放置时，可从自己的弃牌堆或自己的卡组中检索「仲村ゆり」以外的ＥＸ为２的角色1名，登场到此角色登场过的场地。"
+    },
+    {
+      "code": "LO-6855-S",
+      "name": "真面目で完璧なお嬢様 唐朽 氷華",
+      "img": "/design/cards/LO-6855-S.png",
+      "category": "キャラクター",
+      "rarity": "SP",
+      "attribute": "花",
+      "ex": 2,
+      "cost": "花花花花",
+      "costTotal": 4,
+      "position": "－－－\n●●●",
+      "ap": 1,
+      "dp": 6,
+      "sp": 3,
+      "dmg": 0,
+      "trait": "",
+      "version": "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(HOK)",
+      "brand": "HOK",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6855-S",
+      "identityId": null,
+      "series": "HOK",
+      "textJa": "[プリンシパル][サポーター:[花花]]\n[宣言] [0]:味方ＡＦ[花]キャラ全てにＡＰ＋１・ＤＰ＋１する。\n[誘発] このキャラが効果以外で登場したとき、以下から１つを選び処理する。\n・中央ＤＦに登場した場合、自分のゴミ箱またはデッキから「夢見がちなお嬢様」１枚を探し無償で配置する。\n・２枚ドローする。自分のデッキをランダムに２枚まで回復しシャッフルする。\n[誘発] 味方キャラが相手の効果で場を離れたとき、１枚ドローできる。この能力は失われる。\n\n初出 : 「Ver.サガプラネッツ&HOOKSOFT&SMEE&ASa Project」ブースターカートン特典",
+      "textZh": "[主演][支援者:[花花]]\n[宣言] [0]:我方AF[花]角色全部AP+1・DP+1。\n[诱发] 当这个角色以非效果方式登场时，从以下选择1项并处理。\n・登场于中央DF的情况下，从自己的弃牌堆或卡组中寻找1张「夢見がちなお嬢様」并免费配置。\n・抽2张卡。将自己的卡组随机恢复至多2张并洗牌。\n[诱发] 当我方角色因对方效果离开场地时，可以抽1张卡。这个能力将失去。\n\n初出 : 「Ver.サガプラネッツ&HOOKSOFT&SMEE&ASa Project」补充包整盒特典"
+    },
+    {
+      "code": "LO-6855",
+      "name": "真面目で完璧なお嬢様 唐朽 氷華",
+      "img": "/design/cards/LO-6855.png",
+      "category": "キャラクター",
+      "rarity": "SR",
+      "attribute": "花",
+      "ex": 2,
+      "cost": "花花花花",
+      "costTotal": 4,
+      "position": "－－－\n●●●",
+      "ap": 1,
+      "dp": 6,
+      "sp": 3,
+      "dmg": 0,
+      "trait": "",
+      "version": "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(HOK)",
+      "brand": "HOK",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6855",
+      "identityId": null,
+      "series": "HOK",
+      "textJa": "[プリンシパル][サポーター:[花花]]\n[宣言] [0]:味方ＡＦ[花]キャラ全てにＡＰ＋１・ＤＰ＋１する。\n[誘発] このキャラが効果以外で登場したとき、以下から１つを選び処理する。\n・中央ＤＦに登場した場合、自分のゴミ箱またはデッキから「夢見がちなお嬢様」１枚を探し無償で配置する。\n・２枚ドローする。自分のデッキをランダムに２枚まで回復しシャッフルする。\n[誘発] 味方キャラが相手の効果で場を離れたとき、１枚ドローできる。この能力は失われる。",
+      "textZh": "[主演][支援者:[花花]]\n[宣言] [0]:我方AF[花]角色全部AP+1・DP+1。\n[诱发] 这个角色以非效果方式登场时，从以下选择1项并处理。\n・登场于中央DF时，从自己的弃牌堆或卡组中寻找1张「夢見がちなお嬢様」并免费配置。\n・抽2张卡。将自己的卡组随机恢复至多2张并洗牌。\n[诱发] 我方角色因对方效果离开场地时，可以抽1张卡。这个能力消失。"
+    },
+    {
+      "code": "LO-6861-S",
+      "name": "承認欲求モンスター 衣川 美卯",
+      "img": "/design/cards/LO-6861-S.png",
+      "category": "キャラクター",
+      "rarity": "SP",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日",
+      "costTotal": 2,
+      "position": "",
+      "ap": 3,
+      "dp": 0,
+      "sp": 0,
+      "dmg": 3,
+      "trait": "",
+      "version": "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(SME)",
+      "brand": "SME",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6861-S",
+      "identityId": null,
+      "series": "SME",
+      "textJa": "[アグレッシブ]\n[宣言] [C1]:{味方[日]キャラ１体}にＡＰ＋２する。\n[宣言] [0]:ＤＰが０のこのキャラにＤＰ－１する。\n[誘発] このキャラが登場したとき、以下から１つを選び処理する。\n・１枚ドローする。(ゲーム中１回まで選択可能)\n・このキャラに１枚チャージできる。自分にシールド＋１できる。",
+      "textZh": "[进取心]\n[宣言] [C1]:{我方[日]角色1个}获得AP+2。\n[宣言] [0]:使DP为0的此角色DP-1。\n[诱发] 此角色登场时，从以下选择1项并处理。\n・抽1张卡。(游戏中最多可选择1次)\n・可以为此角色充能1张。自己获得护盾+1。"
+    },
+    {
+      "code": "LO-6861",
+      "name": "承認欲求モンスター 衣川 美卯",
+      "img": "/design/cards/LO-6861.png",
+      "category": "キャラクター",
+      "rarity": "SR",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日",
+      "costTotal": 2,
+      "position": "",
+      "ap": 3,
+      "dp": 0,
+      "sp": 0,
+      "dmg": 3,
+      "trait": "",
+      "version": "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(SME)",
+      "brand": "SME",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6861",
+      "identityId": null,
+      "series": "SME",
+      "textJa": "[アグレッシブ]\n[宣言] [C1]:{味方[日]キャラ１体}にＡＰ＋２する。\n[宣言] [0]:ＤＰが０のこのキャラにＤＰ－１する。\n[誘発] このキャラが登場したとき、以下から１つを選び処理する。\n・１枚ドローする。(ゲーム中１回まで選択可能)\n・このキャラに１枚チャージできる。自分にシールド＋１できる。",
+      "textZh": "[进取心]\n[宣言] [C1]:{我方[日]角色1个}获得AP+2。\n[宣言] [0]:使DP为0的此角色DP-1。\n[诱发] 此角色登场时，从以下选择1项并处理。\n・抽1张卡。(游戏中最多可选择1次)\n・可以为此角色充能1张。自己获得护盾+1。"
+    },
+    {
+      "code": "LO-6858-S",
+      "name": "バスケ部の次期エース 安達 千依",
+      "img": "/design/cards/LO-6858-S.png",
+      "category": "キャラクター",
+      "rarity": "SP",
+      "attribute": "宙",
+      "ex": 2,
+      "cost": "宙宙宙宙",
+      "costTotal": 4,
+      "position": "",
+      "ap": 6,
+      "dp": 6,
+      "sp": 1,
+      "dmg": 4,
+      "trait": "",
+      "version": "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(ASA)",
+      "brand": "ASA",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6858-S",
+      "identityId": null,
+      "series": "ASA",
+      "textJa": "[オーダーステップ:[0]][チャージ:３]\n[宣言] [C1]:{味方キャラ１体}にＡＰ＋３またはＤＰ＋３する。\n[誘発] 自ターン終了時、このキャラのチャージ１枚を破棄できる。したとき、１枚ドローする。\n[宣言] [0]:対応・バトル中を除く自ターン中に使用する。このキャラのＤＭＧを０にし未行動にする。このキャラを味方ＤＦに移動または味方ＤＦキャラ１体と入れ替えることができる。この能力は失われる。\n構築制限:【[宙]】【コストが４点以下】\n\n初出 : 「Ver.サガプラネッツ&HOOKSOFT&SMEE&ASa Project」ブースターカートン特典",
+      "textZh": "[纵向移动:[0]][充能:３]\n[宣言] [C1]:{我方角色１个}ＡＰ＋３或ＤＰ＋３。\n[诱发] 自回合结束时，可以破弃这个角色的１张充能。如此做时，抽１张牌。\n[宣言] [0]:对应・除战斗中以外，在自回合中使用。将这个角色的ＤＭＧ变为０并转为未行动状态。可以将这个角色移动到我方ＤＦ或与我方ＤＦ角色１个交换。这个能力将失去。\n构筑限制:【[宙]】【COST能力为４点以下】\n\n初出 : 「Ver.サガプラネッツ&HOOKSOFT&SMEE&ASa Project」补充包整盒特典"
+    },
+    {
+      "code": "LO-6858",
+      "name": "バスケ部の次期エース 安達 千依",
+      "img": "/design/cards/LO-6858.png",
+      "category": "キャラクター",
+      "rarity": "SR",
+      "attribute": "宙",
+      "ex": 2,
+      "cost": "宙宙宙宙",
+      "costTotal": 4,
+      "position": "",
+      "ap": 6,
+      "dp": 6,
+      "sp": 1,
+      "dmg": 4,
+      "trait": "",
+      "version": "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(ASA)",
+      "brand": "ASA",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6858",
+      "identityId": null,
+      "series": "ASA",
+      "textJa": "[オーダーステップ:[0]][チャージ:３]\n[宣言] [C1]:{味方キャラ１体}にＡＰ＋３またはＤＰ＋３する。\n[誘発] 自ターン終了時、このキャラのチャージ１枚を破棄できる。したとき、１枚ドローする。\n[宣言] [0]:対応・バトル中を除く自ターン中に使用する。このキャラのＤＭＧを０にし未行動にする。このキャラを味方ＤＦに移動または味方ＤＦキャラ１体と入れ替えることができる。この能力は失われる。\n構築制限:【[宙]】【コストが４点以下】",
+      "textZh": "[纵向移动:[0]][充能:３]\n[宣言] [C1]:{我方角色1个}获得ＡＰ＋３或ＤＰ＋３。\n[诱发] 自回合结束时，可以破弃这个角色的1张充能。如此做时，抽1张卡。\n[宣言] [0]:仅在对应・战斗外的自回合中使用。将这个角色的ＤＭＧ变为０并转为未行动状态。可以将这个角色移动到我方ＤＦ或与我方ＤＦ角色1个交换。这个能力将失去。\n构筑限制:【[宙]】【COST能力为４点以下】"
+    },
+    {
+      "code": "LO-6557-S",
+      "name": "無口なバイト学生 戸倉 真由",
+      "img": "/design/cards/LO-6557-S.png",
+      "category": "キャラクター",
+      "rarity": "SP",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日日日",
+      "costTotal": 4,
+      "position": "",
+      "ap": 4,
+      "dp": 4,
+      "sp": 1,
+      "dmg": 3,
+      "trait": "",
+      "version": "パープルソフトウェア 2.0(PUR)",
+      "brand": "PUR",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6557-S",
+      "identityId": null,
+      "series": "PUR",
+      "textJa": "[ジャンプ:[0]][チャージ:２]\n  [宣言] [0]:{味方キャラ１体}にＡＰ＋２する。\n[宣言] [C1]:自ターン中に使用する。１枚ドローする。\n[宣言] [C2]:対応・バトル中を除く自ターン中に使用する。自分のゴミ箱またはデッキから「元気一杯な真由の妹 戸倉翼」１体を探し無償で登場する。\n構築制限:[日]",
+      "textZh": "[跳跃:[0]][充能:２]\n  [宣言] [0]:己方1名角色ＡＰ＋２。\n[宣言] [C1]:在己方回合中使用。抽1张牌。\n[宣言] [C2]:除应对及战斗中外的己方回合中使用。从自己的弃牌堆或卡组中寻找「元気一杯な真由の妹 戸倉翼」1名并无偿登场。\n构筑限制:[日]"
+    },
+    {
+      "code": "LO-6557",
+      "name": "無口なバイト学生 戸倉 真由",
+      "img": "/design/cards/LO-6557.png",
+      "category": "キャラクター",
+      "rarity": "SR",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日日日",
+      "costTotal": 4,
+      "position": "",
+      "ap": 4,
+      "dp": 4,
+      "sp": 1,
+      "dmg": 3,
+      "trait": "",
+      "version": "パープルソフトウェア 2.0(PUR)",
+      "brand": "PUR",
+      "illustrator": "",
+      "team": "",
+      "printingId": "LO-6557",
+      "identityId": null,
+      "series": "PUR",
+      "textJa": "[ジャンプ:[0]][チャージ:２]\n  [宣言] [0]:{味方キャラ１体}にＡＰ＋２する。\n[宣言] [C1]:自ターン中に使用する。１枚ドローする。\n[宣言] [C2]:対応・バトル中を除く自ターン中に使用する。自分のゴミ箱またはデッキから「元気一杯な真由の妹 戸倉翼」１体を探し無償で登場する。\n構築制限:[日]",
+      "textZh": "[跳跃:[0]][充能:２]\n  [宣言] [0]:己方1名角色ＡＰ＋２。\n[宣言] [C1]:在己方回合中使用。抽1张牌。\n[宣言] [C2]:除应对及战斗中外的己方回合中使用。从自己的弃牌堆或卡组中寻找「元気一杯な真由の妹 戸倉翼」1名并无偿登场。\n构筑限制:[日]"
+    },
+    {
+      "code": "LO-6415-S",
+      "name": "雷閃胡蝶 斎藤 結菜 帰蝶",
+      "img": "/design/cards/LO-6415-S.png",
+      "category": "キャラクター",
+      "rarity": "SP",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日日",
+      "costTotal": 3,
+      "position": "",
+      "ap": 2,
+      "dp": 4,
+      "sp": 2,
+      "dmg": 0,
+      "trait": "",
+      "version": "ネクストン 4.0(NEX)",
+      "brand": "NEX",
+      "illustrator": "片桐雛太",
+      "team": "",
+      "printingId": "LO-6415-S",
+      "identityId": null,
+      "series": "NEX",
+      "textJa": "[ジャンプ:[0]][チャージ:１]\n  [誘発] このキャラが登場したとき、自分のゴミ箱または自分のデッキから「美濃の鬼蝶姫」１枚を探し無償で配置できる。しない場合、１枚ドローする。このキャラに１枚チャージできる。\n[誘発] 自ターン開始時またはこのキャラが自分の効果以外で場を離れたとき、１枚ドローする。この能力は失われる。\n[宣言] [C1]:{味方キャラ１体}にＡＰ＋２する。（１ターンに２回まで使用可能）\n[手札宣言] [0]:先攻後攻１ターン目に使用する。コストが３点以上で[ジャンプ]を持たない味方『戦国†恋姫』[日]キャラ１体をデッキの下に置く。置いたとき、ゴミ箱のこのキャラを無償で登場する。",
+      "textZh": "[跳跃:[0]][充能:１]\n  [誘発] 此角色登场时，可从自己的弃牌堆或自己的卡组中寻找「美濃の鬼蝶姫」1张并无偿配置。不这样做时，抽1张牌。可给此角色充能1张。\n[誘発] 己方回合开始时或此角色以自己效果以外离场时，抽1张牌。此能力失效。\n[宣言] [C1]:己方1名角色ＡＰ＋２。（1回合中至多可使用2次）\n[手札宣言] [0]:在先后手第1回合中使用。将费用为3点以上且不拥有[跳跃]的己方『戦国†恋姫』的1名[日]角色放到卡组底部。放置时，无偿登场弃牌堆中的此角色。"
+    },
+    {
+      "code": "LO-6415",
+      "name": "雷閃胡蝶 斎藤 結菜 帰蝶",
+      "img": "/design/cards/LO-6415.png",
+      "category": "キャラクター",
+      "rarity": "SR",
+      "attribute": "日",
+      "ex": 2,
+      "cost": "日日日",
+      "costTotal": 3,
+      "position": "",
+      "ap": 2,
+      "dp": 4,
+      "sp": 2,
+      "dmg": 0,
+      "trait": "",
+      "version": "ネクストン 4.0(NEX)",
+      "brand": "NEX",
+      "illustrator": "片桐雛太",
+      "team": "",
+      "printingId": "LO-6415",
+      "identityId": null,
+      "series": "NEX",
+      "textJa": "[ジャンプ:[0]][チャージ:１]\n  [誘発] このキャラが登場したとき、自分のゴミ箱または自分のデッキから「美濃の鬼蝶姫」１枚を探し無償で配置できる。しない場合、１枚ドローする。このキャラに１枚チャージできる。\n[誘発] 自ターン開始時またはこのキャラが自分の効果以外で場を離れたとき、１枚ドローする。この能力は失われる。\n[宣言] [C1]:{味方キャラ１体}にＡＰ＋２する。（１ターンに２回まで使用可能）\n[手札宣言] [0]:先攻後攻１ターン目に使用する。コストが３点以上で[ジャンプ]を持たない味方『戦国†恋姫』[日]キャラ１体をデッキの下に置く。置いたとき、ゴミ箱のこのキャラを無償で登場する。",
+      "textZh": "[跳跃:[0]][充能:１]\n  [誘発] 此角色登场时，可从自己的弃牌堆或自己的卡组中寻找「美濃の鬼蝶姫」1张并无偿配置。不这样做时，抽1张牌。可给此角色充能1张。\n[誘発] 己方回合开始时或此角色以自己效果以外离场时，抽1张牌。此能力失效。\n[宣言] [C1]:己方1名角色ＡＰ＋２。（1回合中至多可使用2次）\n[手札宣言] [0]:在先后手第1回合中使用。将费用为3点以上且不拥有[跳跃]的己方『戦国†恋姫』的1名[日]角色放到卡组底部。放置时，无偿登场弃牌堆中的此角色。"
+    }
+  ],
+  "series": [
+    {
+      "code": "ASA",
+      "name": "ASa Project",
+      "description": "ASa Project",
+      "count": 141,
+      "versions": [
+        "ASa Project(ASA)",
+        "HOOKSOFT&SMEE&ASaProject(ASA)",
+        "サガプラネッツ&HOOKSOFT&SMEE&ASa Project 着せ替えコラボパック(ASA)",
+        "SMEE&ASaProject 激デレ＆変顔パック(ASA)",
+        "HOOKSOFT&SMEE&ASa Project(ASA)",
+        "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(ASA)"
+      ],
+      "image": "LO-6858-S"
+    },
+    {
+      "code": "SME",
+      "name": "SMEE",
+      "description": "SMEE",
+      "count": 134,
+      "versions": [
+        "SMEE 1.0(SME)",
+        "SMEE(SME)",
+        "HOOKSOFT&SMEE&ASaProject(SME)",
+        "サガプラネッツ&HOOKSOFT&SMEE&ASa Project 着せ替えコラボパック(SME)",
+        "SMEE&ASaProject 激デレ＆変顔パック(SME)",
+        "HOOKSOFT&SMEE&ASa Project(SME)",
+        "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(SME)"
+      ],
+      "image": "LO-6861-S"
+    },
+    {
+      "code": "HOK",
+      "name": "HOOKSOFT",
+      "description": "HOOKSOFT",
+      "count": 290,
+      "versions": [
+        "HOOKSOFT 1.0(HOK)",
+        "サガプラネッツ&HOOKSOFT&SMEE&ASa Project 着せ替えコラボパック(HOK)",
+        "HOOKSOFT 純愛パック(HOK)",
+        "HOOKSOFT(HOK)",
+        "HOOKSOFT (HOK)",
+        "HOOKSOFT&SMEE&ASaProject(HOK)",
+        "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(HOK)"
+      ],
+      "image": "LO-6855-S"
+    },
+    {
+      "code": "SP",
+      "name": "SAGA PLANETS",
+      "description": "SAGA PLANETS",
+      "count": 289,
+      "versions": [
+        "サガプラネッツ 1.0(SP)",
+        "サガプラネッツ&HOOKSOFT&SMEE&ASa Project 着せ替えコラボパック(SP)",
+        "サガプラネッツ(SP)",
+        "サガプラネッツ&HOOKSOFT&SMEE&ASa Project(SP)"
+      ],
+      "image": "LO-6852-S"
+    },
+    {
+      "code": "WP",
+      "name": "Whirlpool",
+      "description": "Whirlpool／漩涡社",
+      "count": 429,
+      "versions": [
+        "Whirlpool 1.0(WP)",
+        "Whirlpool(WP)",
+        "Whirlpool 20th Anniversary & Finale!(WP)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "PUR",
+      "name": "Purple software",
+      "description": "Purple software／紫社",
+      "count": 408,
+      "versions": [
+        "パープルソフトウェア 1.0(PUR)",
+        "パープルソフトウェア 2.0(PUR)",
+        "パープルソフトウェア(PUR)",
+        "パープルソフトウェア DX1(PUR)"
+      ],
+      "image": "LO-6557-S"
+    },
+    {
+      "code": "NEX",
+      "name": "NEXTON",
+      "description": "NEXTON",
+      "count": 893,
+      "versions": [
+        "-(NEX)",
+        "ネクストン(NEX)",
+        "ネクストン 1.0(NEX)",
+        "ネクストン 夏のてんこ盛りパックRe: ポロリばっかりだよ!!(NEX)",
+        "ネクストン 2.0(NEX)",
+        "NEXTON (NEX)",
+        "NEXTON(NEX)",
+        "NEXTON 2.0(NEX)",
+        "ネクストン 3.0(NEX)",
+        "ネクストン (NEX)",
+        "ネクストン 4.0(NEX)"
+      ],
+      "image": "LO-6415-S"
+    },
+    {
+      "code": "NIT",
+      "name": "NITRO ORIGIN",
+      "description": "NITRO ORIGIN（株式会社ニトロプラス旗下）",
+      "count": 263,
+      "versions": [
+        "ニトロオリジン 1.0(NIT)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "GIG",
+      "name": "GIGA",
+      "description": "戯画／GIGA",
+      "count": 255,
+      "versions": [
+        "戯画 1.0(GIG)",
+        "戯画(GIG)",
+        "戯画 DX1(GIG)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "NAV",
+      "name": "Navel",
+      "description": "Navel",
+      "count": 405,
+      "versions": [
+        "Navel 1.0(NAV)",
+        "Navel 2.0(NAV)",
+        "Navel(NAV)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "CAB",
+      "name": "Cabbage Soft",
+      "description": "きゃべつそふと／卷心菜社",
+      "count": 205,
+      "versions": [
+        "きゃべつそふと 1.0(CAB)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "MML",
+      "name": "Marmalade",
+      "description": "ま～まれぇど／Marmalade",
+      "count": 183,
+      "versions": [
+        "ま～まれぇど(MML)",
+        "ま～まれぇど 1.0(MML)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "-",
+      "name": "其他卡牌",
+      "description": "未标记／其他卡牌",
+      "count": 12,
+      "versions": [
+        "メロンブックス(-)",
+        "-(-)",
+        "()"
+      ],
+      "image": ""
+    },
+    {
+      "code": "SP HOK SME ASA",
+      "name": "SAGA PLANETS × HOOKSOFT × SMEE × ASa Project",
+      "description": "SAGA PLANETS + HOOKSOFT + SMEE + ASa Project",
+      "count": 1,
+      "versions": [
+        "サガプラネッツ&HOOKSOFT&SMEE&ASa Project 着せ替えコラボパック(SP HOK SME ASA)"
+      ],
+      "image": "LO-6852-S"
+    },
+    {
+      "code": "QM",
+      "name": "KeroQ / Makura",
+      "description": "ケロQ 与 枕 两个品牌",
+      "count": 194,
+      "versions": [
+        "ケロQ・枕 1.0(QM)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "AMC",
+      "name": "AMUSE CRAFT",
+      "description": "AMUSE CRAFT 联合品牌",
+      "count": 208,
+      "versions": [
+        "アミューズクラフト(AMC)",
+        "アミューズクラフト 1.0(AMC)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "WM",
+      "name": "Windmill",
+      "description": "Windmill／风车社",
+      "count": 211,
+      "versions": [
+        "ういんどみる 1.0(WM)",
+        "ういんどみる(WM)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "NAW",
+      "name": "NanaWind",
+      "description": "NanaWind／七风社",
+      "count": 1,
+      "versions": [
+        "ナナウインド(NAW)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "MAD",
+      "name": "Madosoft",
+      "description": "Madosoft／窗社",
+      "count": 180,
+      "versions": [
+        "まどそふと 1.0(MAD)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "AQP",
+      "name": "AQUAPLUS",
+      "description": "AQUAPLUS",
+      "count": 444,
+      "versions": [
+        "アクアプラス 1.0(AQP)",
+        "アクアプラス DX1(AQP)",
+        "アクアプラス 2.0(AQP)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "YUZ",
+      "name": "Yuzusoft",
+      "description": "Yuzusoft／柚子社",
+      "count": 616,
+      "versions": [
+        "ゆずソフト 1.0(YUZ)",
+        "ゆずソフト 2.0(YUZ)",
+        "ゆずソフト 3.0(YUZ)",
+        "ゆずソフト(YUZ)"
+      ],
+      "image": "LO-4865-S"
+    },
+    {
+      "code": "AUG",
+      "name": "AUGUST",
+      "description": "AUGUST／八月社",
+      "count": 590,
+      "versions": [
+        "オーガスト 1.0(AUG)",
+        "オーガスト 2.0(AUG)",
+        "オーガスト DX1(AUG)",
+        "オーガスト 3.0(AUG)"
+      ],
+      "image": "LO-4710-S"
+    },
+    {
+      "code": "DG",
+      "name": "DiGination",
+      "description": "DiGination（EXNOA／FANZA GAMES）",
+      "count": 211,
+      "versions": [
+        "DiGination(DG)",
+        "DiGination 1.0(DG)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "AL",
+      "name": "ALICESOFT",
+      "description": "AliceSoft／爱丽丝社",
+      "count": 208,
+      "versions": [
+        "アリスソフト 1.0(AL)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "AIG",
+      "name": "Millennium War Aigis",
+      "description": "千年战争 Aigis",
+      "count": 375,
+      "versions": [
+        "千年戦争アイギス 1.0(AIG)",
+        "千年戦争アイギス 2.0(AIG)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "GUP",
+      "name": "Girls und Panzer",
+      "description": "少女与战车",
+      "count": 478,
+      "versions": [
+        "ガールズ＆パンツァー戦車道大作戦！ 1.0(GUP)",
+        "-(GUP)",
+        "ガールズ＆パンツァー最終章 1.0(GUP)",
+        "ガールズ＆パンツァー 最終章＆戦車道大作戦 DX1(GUP)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "TOA",
+      "name": "Toaru series",
+      "description": "某系列（禁书目录／超电磁炮／一方通行）",
+      "count": 390,
+      "versions": [
+        "とある魔術の禁書目録Ⅲ(TOA)",
+        "とある科学の超電磁砲T＆とある科学の一方通行(TOA)",
+        "とある科学の超電磁砲T&とある科学の一方通行(TOA)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "PAL",
+      "name": "Palette",
+      "description": "Palette／调色板社",
+      "count": 151,
+      "versions": [
+        "ぱれっと 1.0(PAL)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "VA",
+      "name": "VisualArt's",
+      "description": "VisualArt's（Key 等品牌体系）",
+      "count": 351,
+      "versions": [
+        "ビジュアルアーツ 1.0(VA)",
+        "ビジュアルアーツ 3.0(VA)",
+        "-(VA)"
+      ],
+      "image": "LO-2754-S"
+    },
+    {
+      "code": "VA TW",
+      "name": "VisualArt's × tone work's",
+      "description": "VisualArt's（Key 等品牌体系） + tone work's（当前卡库通过 VA TW 标记）",
+      "count": 76,
+      "versions": [
+        "ビジュアルアーツ 3.0(VA TW)"
+      ],
+      "image": "LO-2754-S"
+    },
+    {
+      "code": "OSP",
+      "name": "Oshiro Project: RE",
+      "description": "御城 Project：RE（DMM GAMES）",
+      "count": 183,
+      "versions": [
+        "御城プロジェクト：ＲＥ 1.0(OSP)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "BXB",
+      "name": "Brave Sword × Blaze Soul",
+      "description": "Brave Sword × Blaze Soul（Grimoire）",
+      "count": 232,
+      "versions": [
+        "ブレイブソード×ブレイズソウル 1.0(BXB)",
+        "ブレイブソード×ブレイズソウル DX1(BXB)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "KHP",
+      "name": "Kamihime PROJECT",
+      "description": "神姬 PROJECT（Techcross／DMM GAMES）",
+      "count": 206,
+      "versions": [
+        "神姫PROJECT 1.0(KHP)",
+        "神姫PROJECT DX1(KHP)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "SP VA",
+      "name": "SAGA PLANETS × VisualArt's",
+      "description": "SAGA PLANETS + VisualArt's（Key 等品牌体系）",
+      "count": 206,
+      "versions": [
+        "ビジュアルアーツ 2.0 サガプラネッツEdition(SP VA)",
+        "サガプラネッツ 1.0(SP VA)"
+      ],
+      "image": "LO-6852-S"
+    },
+    {
+      "code": "ZLS",
+      "name": "Zombie Land Saga",
+      "description": "佐贺偶像是传奇／佐贺丧尸",
+      "count": 1,
+      "versions": [
+        "ゾンビランドサガ(ZLS)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "TM",
+      "name": "TYPE-MOON",
+      "description": "TYPE-MOON；当前卡库为 Fate/Grand Order",
+      "count": 532,
+      "versions": [
+        "Fate/Grand Order 1.0(TM)",
+        "Fate/Grand Order 2.0(TM)",
+        "Fate/Grand Order 3.0(TM)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "UNI",
+      "name": "UNITIA",
+      "description": "UNITIA（Techcross／DMM GAMES）",
+      "count": 3,
+      "versions": [
+        "(UNI)"
+      ],
+      "image": ""
+    },
+    {
+      "code": "SSS",
+      "name": "Special Sleeve Selection",
+      "description": "Melonbooks 的 Special Sleeve Selection 卡套企划",
+      "count": 1,
+      "versions": [
+        "-(SSS)"
+      ],
+      "image": ""
+    }
+  ]
+}

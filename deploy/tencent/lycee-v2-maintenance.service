@@ -1,0 +1,25 @@
+[Unit]
+Description=Lycee V2 official card translation and deck maintenance
+After=network-online.target postgresql.service
+OnSuccess=lycee-v2-images.service
+OnFailure=lycee-v2-images.service
+
+[Service]
+Type=oneshot
+User=lycee-v2-maintenance
+Group=lycee-v2-maintenance
+SupplementaryGroups=lycee-assets
+WorkingDirectory=/var/lib/lycee-v2-maintenance/work
+EnvironmentFile=/etc/lycee-v2/maintenance.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/flock -n /var/lib/lycee/images/.v2-maintenance.lock /usr/local/bin/node /opt/lycee-v2/current/maintenance/run.mjs
+ReadWritePaths=/var/lib/lycee-v2-maintenance /var/lib/lycee/images/.v2-maintenance.lock
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+Nice=10
+MemoryMax=768M
+CPUQuota=70%
+TimeoutStartSec=3h
+UMask=0022

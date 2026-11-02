@@ -1,0 +1,9 @@
+[Unit]
+Description=Lycee V2 verified encrypted COS backup
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/lycee-v2/current/deploy/tencent/native-backup.py
+UMask=0077
+TimeoutStartSec=900

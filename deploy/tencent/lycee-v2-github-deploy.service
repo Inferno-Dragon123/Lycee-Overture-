@@ -1,0 +1,19 @@
+[Unit]
+Description=Lycee V2 verified deployment from GitHub main
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/lycee-v2/github-auto-deploy.py
+TimeoutStartSec=30min
+UMask=0022
+Nice=10
+CPUQuota=80%
+MemoryMax=2G
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/lycee-v2 /var/lib/lycee-v2-deploy /var/lib/lycee/images/.v2-maintenance.lock
+

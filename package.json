@@ -1,0 +1,62 @@
+{
+  "name": "lycee-overture-toolbox",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "packageManager": "npm@11.9.0",
+  "engines": {
+    "node": ">=24.14.0 <25"
+  },
+  "overrides": {
+    "simple-git": "4.0.2",
+    "archiver-utils": {
+      "glob": "10.5.0"
+    }
+  },
+  "scripts": {
+    "dev": "nuxt dev --host 127.0.0.1",
+    "build": "nuxt build",
+    "preview": "node .output/server/index.mjs",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck",
+    "catalog:import": "node scripts/catalog/import.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "5.3.0",
+    "@headlessui/vue": "1.7.23",
+    "@tiptap/extension-image": "3.32.1",
+    "@tiptap/extension-placeholder": "3.32.1",
+    "@tiptap/starter-kit": "3.32.1",
+    "@tiptap/vue-3": "3.32.1",
+    "axios": "1.18.1",
+    "cheerio": "1.2.0",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "dotenv": "17.4.2",
+    "flexsearch": "0.8.212",
+    "gsap": "3.15.0",
+    "idb-keyval": "6.3.0",
+    "jspdf": "4.2.1",
+    "lucide-vue-next": "0.468.0",
+    "nuxt": "4.5.2",
+    "pg": "8.23.0",
+    "reka-ui": "2.11.0",
+    "robots-parser": "3.0.1",
+    "shadcn-nuxt": "2.8.2",
+    "sharp": "0.34.5",
+    "tailwind-merge": "3.7.0",
+    "three": "0.186.1",
+    "undici": "8.11.2",
+    "vue": "3.5.43"
+  },
+  "devDependencies": {
+    "@nuxt/schema": "4.5.2",
+    "@tailwindcss/vite": "4.3.3",
+    "@types/node": "24.10.1",
+    "@types/pg": "8.23.1",
+    "@types/three": "0.186.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vue-tsc": "3.3.12"
+  }
+}

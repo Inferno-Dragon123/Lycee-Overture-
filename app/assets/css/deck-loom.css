@@ -1,0 +1,69 @@
+/* Deck Loom tuning: atlas height, focus image, and short-window density. */
+.deck-loom { --loom-atlas-height: 92px; display: flex; flex-direction: column; gap: 10px; min-height: 0; color: var(--ink); }
+.deck-loom button { color: var(--ink); background: var(--soft); border: 0; border-radius: 7px; cursor: pointer; }
+.deck-loom button:disabled { opacity: .4; cursor: default; }
+.deck-loom :is(button,input,summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.loom-search { display: flex; align-items: center; gap: 6px; }
+.loom-search input { min-width: 0; width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px 8px; font-size: 12px; }
+.loom-search > span { flex-shrink: 0; font-size: 11px; color: var(--muted); }
+.loom-atlas { display: grid; grid-template-columns: repeat(var(--loom-columns),minmax(0,1fr)); grid-auto-rows: minmax(0,1fr); gap: 2px; height: var(--loom-atlas-height); flex-shrink: 0; padding: 4px; background: var(--bg); border-radius: 10px; touch-action: pan-y; user-select: none; overflow: hidden; }
+.deck-loom .loom-spine { min-width: 0; padding: 5px 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; border-bottom: 3px solid transparent; overflow: hidden; touch-action: pan-y; transition: background-color .18s, color .18s; }
+.loom-atlas.is-dense .loom-spine { padding: 1px 0; justify-content: center; border-radius: 3px; }
+.loom-atlas.is-dense .loom-spine > span { display: none; }
+.loom-atlas.is-dense .loom-spine > b { font-size: 9px; }
+.loom-spine > span { writing-mode: vertical-rl; font-size: 10px; overflow: hidden; white-space: nowrap; }
+.loom-spine > b { font-size: 10px; font-variant-numeric: tabular-nums; }
+.deck-loom .loom-spine[aria-pressed=true] { background: var(--accent); color: var(--on-accent); }
+.deck-loom .loom-spine.is-match { border-bottom-color: var(--accent); }
+.loom-empty { margin: auto !important; font-size: 12px; color: var(--muted); }
+.loom-focus { display: flex; align-items: center; gap: 10px; min-height: 126px; }
+.deck-loom .loom-art { width: 60px; padding: 0; flex-shrink: 0; aspect-ratio: 63 / 88; overflow: hidden; }
+.loom-art img { width: 100%; height: 100%; object-fit: contain; }
+.loom-summary { flex: 1; min-width: 0; }
+.loom-summary > strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 13px; line-height: 1.5; }
+.loom-summary > small { display: block; font-size: 10px; line-height: 1.65; color: var(--muted); overflow-wrap: anywhere; }
+.loom-quantity { display: flex; align-items: center; gap: 3px; margin-top: 5px; }
+.loom-quantity button { min-width: 36px; height: 40px; display: flex; align-items: center; justify-content: center; }
+.loom-quantity output { min-width: 22px; text-align: center; font-size: 14px; }
+.deck-loom .loom-detail { background: transparent; font-size: 12px; margin-left: auto; }
+.loom-effect { flex: 1; min-height: 40px; max-height: 140px; overflow-y: auto; overscroll-behavior: contain; font-size: 12px; line-height: 1.7; white-space: pre-wrap; }
+.loom-effect p { margin-bottom: 8px !important; }
+.loom-effect button { padding: 6px; margin-top: 6px; }
+.loom-navigation { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.loom-navigation button { min-width: 44px; height: 36px; display: grid; place-items: center; }
+.loom-navigation span { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.loom-neighbors { display: flex; gap: 4px; min-height: 36px; }
+.loom-neighbors button { flex: 1; min-width: 0; font-size: 10px; padding: 5px 2px; overflow: hidden; }
+.loom-neighbors button[aria-pressed=true] { box-shadow: inset 0 -2px var(--accent); }
+.loom-view-switch { display: flex; gap: 6px; margin-block: 12px; }
+.loom-view-switch button { flex: 1; background: var(--soft); color: var(--muted); border: 0; border-radius: 8px; padding: 9px 4px; font-size: 12px; }
+.loom-view-switch button[aria-pressed=true] { background: var(--accent); color: var(--on-accent); }
+.p-deck-drawer .loom-undo { flex: 0 0 auto; padding-inline: 8px; }
+.p-deck-drawer.p-loom-drawer { display: flex; flex-direction: column; overflow: hidden; }
+.p-loom-drawer > * { flex-shrink: 0; }
+.p-loom-drawer .p-drawer-heading { margin-bottom: 8px; }
+.p-loom-drawer .p-deck-meter { margin-top: 8px; }
+.p-loom-drawer .p-deck-meter strong { font-size: 32px; }
+.p-loom-drawer .p-meter { margin-bottom: 0; }
+.p-loom-drawer > .deck-loom { flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.p-deck-drawer.p-loom-drawer > .p-button { margin: 10px 0 8px; min-height: 40px; padding: 8px; }
+.p-loom-drawer > .p-text-link { font-size: 12px; }
+@media (max-width: 599px) {
+  .deck-loom { --loom-atlas-height: 58px; gap: 6px; }
+  .loom-focus { min-height: 104px; }
+  .loom-art { width: 48px !important; }
+  .loom-neighbors button, .loom-navigation button { min-height: 40px; }
+  .p-filters-open .p-loom-drawer h2, .p-filters-open .p-loom-drawer .p-meter, .p-filters-open .p-loom-drawer > .p-text-link { display: none; }
+  .p-filters-open .p-loom-drawer .p-drawer-heading { justify-content: flex-end; min-height: 28px; margin-bottom: 0; }
+  .p-filters-open .p-loom-drawer .p-drawer-heading > span { display: none; }
+  .p-filters-open .p-loom-drawer .p-deck-meter { position: absolute; top: 16px; left: 16px; margin-top: 0; height: 28px; }
+  .p-filters-open .p-loom-drawer .p-deck-meter strong { font-size: 22px; }
+  .p-filters-open .p-loom-drawer .loom-view-switch { margin-block: 5px; margin-right: 0; }
+  .p-filters-open .p-loom-drawer .deck-loom { --loom-atlas-height: 40px; }
+  .p-filters-open .p-loom-drawer .loom-focus { min-height: 82px; }
+  .p-filters-open .p-loom-drawer .loom-neighbors { display: none; }
+  .p-filters-open .p-loom-drawer .loom-summary > small:not([data-testid]) { display: none; }
+  .p-filters-open .p-loom-drawer > .p-button { margin-bottom: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .deck-loom * { transition: none !important; } }
+.p-motion-off .deck-loom * { transition: none !important; }

@@ -1,0 +1,17 @@
+<script setup lang="ts">
+import {strategyRequest} from '~/utils/strategy-api';
+
+import type {StrategyArticle,StrategySnapshot} from '#shared/domain/strategy';
+import {printStrategy,type ArticlePrintOptions} from '~/utils/strategy-print';
+import StrategyContent from './StrategyContent.vue';
+import ChoiceListbox from '../ChoiceListbox.vue';
+import WorkflowDialog from '../WorkflowDialog.vue';
+const props=defineProps<{id:string}>(),catalog=useOrbitCatalog(),state=useShowcase();
+const article=ref<(StrategyArticle&{snapshots:Record<string,StrategySnapshot>})|null>(null),error=ref(''),busy=ref(false),pdfOpen=ref(false),options=reactive<ArticlePrintOptions>({paper:'a4',cover:false,pageNumbers:true,links:true});
+const cards=computed(()=>Object.fromEntries(catalog.byCode.value));
+async function load(){error.value='';try{article.value=await strategyRequest('/api/strategy/articles',{query:{id:props.id,view:'public'}});await catalog.load();}catch(e){error.value=(e as {data?:{message?:string}}).data?.message||'攻略暂时不可读取';}}
+async function pdf(){if(!article.value)return;busy.value=true;try{await printStrategy(article.value,cards.value,article.value.snapshots,options);pdfOpen.value=false;}catch(e){error.value=(e as Error).message;}finally{busy.value=false;}}
+async function unpublish(){if(!article.value)return;try{await strategyRequest('/api/strategy/articles',{method:'PATCH',body:{id:props.id,revision:article.value.revision,action:'unpublish'}});await navigateTo('/concepts/orbit/learn?tab=mine');}catch(e){error.value=(e as {data?:{message?:string}}).data?.message||'撤回失败';}}
+onMounted(()=>void load());
+</script>
+<template><section class="strategy-reader"><header class="strategy-reader-actions"><NuxtLink to="/concepts/orbit/learn?tab=articles">← 返回玩家攻略</NuxtLink><div v-if="article"><button @click="pdfOpen=true">导出PDF</button><NuxtLink v-if="article.canEdit" :to="'/concepts/orbit/learn/write?draft='+id">编辑攻略</NuxtLink><button v-if="article.canEdit" @click="unpublish">撤回公开</button></div></header><p v-if="error" role="alert">{{ error }}<button @click="load">重新读取</button></p><p v-if="!article&&!error" role="status">正在读取攻略…</p><article v-if="article" class="strategy-reading-article"><header><small>{{ article.category }} · {{ article.author }}</small><h1>{{ article.title }}</h1><p>{{ article.summary }}</p><div class="article-tags"><span v-for="tag in article.tags" :key="tag">{{ tag }}</span></div><img v-if="article.cover" class="article-cover" :src="article.cover" alt="攻略封面" /></header><StrategyContent :doc="article.doc" :cards="cards" :snapshots="article.snapshots" @card="code=>{const c=catalog.byCode.value.get(code);if(c)state.selected.value=c;}" /></article><WorkflowDialog v-model:open="pdfOpen" title="导出PDF" description="打开打印窗口后选择“另存为PDF”。"><form class="workflow-form" @submit.prevent="pdf"><ChoiceListbox :model-value="options.paper" label="纸张" :options="[{value:'a4',label:'A4'},{value:'letter',label:'Letter'}]" @update:model-value="options.paper=$event==='letter'?'letter':'a4'" /><label class="strategy-consent"><input v-model="options.cover" type="checkbox" />包含封面</label><label class="strategy-consent"><input v-model="options.pageNumbers" type="checkbox" />页码</label><label class="strategy-consent"><input v-model="options.links" type="checkbox" />附外部链接</label><button class="p-button" :disabled="busy" type="submit">准备PDF并打开打印</button></form></WorkflowDialog></section></template>

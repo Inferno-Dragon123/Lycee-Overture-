@@ -1,0 +1,212 @@
+/* Shared feedback for the entire static workbench, including teleported dialogs. */
+:is(.concept, .p-card-modal)
+  :is(
+    button,
+    a[href],
+    input,
+    textarea,
+    summary,
+    [role="option"],
+    [role="tab"],
+    [role="switch"]
+  ) {
+  transition:
+    translate 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.16s ease-out,
+    box-shadow 0.28s,
+    background-color 0.24s,
+    border-color 0.24s,
+    color 0.2s,
+    opacity 0.22s;
+}
+:is(.concept, .p-card-modal)
+  :is(
+    button,
+    a[href],
+    summary,
+    [role="option"],
+    [role="tab"],
+    [role="switch"]
+  ):active:not(:disabled):not([aria-disabled="true"]) {
+  scale: 0.965;
+}
+:is(.concept, .p-card-modal)
+  :is(
+    button,
+    a[href],
+    input,
+    textarea,
+    summary,
+    [role="option"],
+    [role="tab"],
+    [role="switch"]
+  ):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+:is(.concept, .p-card-modal) :is(button, a[href], [role="option"]) > svg {
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    translate 0.24s;
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.concept, .p-card-modal)
+    :is(
+      button,
+      a[href],
+      summary,
+      [role="option"],
+      [role="tab"],
+      [role="switch"]
+    ):hover:where(:not(:disabled):not([aria-disabled="true"])) {
+    translate: 0 -2px;
+  }
+  /* Text and icon actions stay unboxed. Shadows belong to existing card surfaces. */
+  .concept :is(.p-nav > a, .p-brand, .p-footer-links > a, .p-text-link):hover {
+    color: var(--accent);
+  }
+  :is(.concept, .p-card-modal) :is(input, textarea):hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+  :is(.concept, .p-card-modal)
+    :is(button, a[href], [role="option"]):hover:not(:disabled)
+    > svg:first-child {
+    transform: translateY(-1px) rotate(-7deg) scale(1.08);
+  }
+}
+/* Search fields retain hover feedback without a focus ring. */
+:is(.concept, .p-card-modal)
+  :is(
+    .p-catalog-search,
+    .a-picker-search,
+    .a-wallet-filters,
+    .shared-search-bar,
+    .deck-search-bar,
+    .deck-detail-filters,
+    .f-panel,
+    .deck-loom,
+    .v2-search,
+    .v3-search
+  )
+  input:not([type="number"]):is(:focus, :focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+:is(.concept, .p-card-modal) :is(.v2-search, .v3-search):focus-within {
+  border-color: var(--line);
+  outline: none;
+  box-shadow: none;
+}
+/* Large navigation surfaces get a stronger light field; no new boxes or labels. */
+.a-shortcuts :is(.a-shortcut, [id^="headlessui-listbox-button"]) {
+  isolation: isolate;
+  overflow: hidden;
+}
+.a-shortcuts :is(.a-shortcut, [id^="headlessui-listbox-button"])::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  background: radial-gradient(
+    210px circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    color-mix(in srgb, var(--shortcut-tint, var(--accent)) 25%, transparent),
+    transparent 75%
+  );
+  transition: opacity 0.3s;
+}
+.a-shortcuts .a-find::before {
+  background: radial-gradient(
+    210px circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    #fff9,
+    transparent 75%
+  );
+}
+.a-shortcuts
+  :is(
+    .a-shortcut,
+    [id^="headlessui-listbox-button"]
+  )[data-feedback-hover]::before,
+.a-shortcuts
+  :is(.a-shortcut, [id^="headlessui-listbox-button"]):focus-visible::before {
+  opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .concept
+    .a-shortcuts
+    :is(.a-shortcut, [id^="headlessui-listbox-button"]):hover {
+    translate: 0 -7px;
+    box-shadow:
+      0 18px 38px #0004,
+      0 0 38px
+        color-mix(in srgb, var(--shortcut-tint, var(--accent)) 14%, transparent);
+  }
+  .concept .a-shortcuts .a-find:hover {
+    box-shadow:
+      0 18px 38px #0003,
+      0 0 42px #b9ed7255;
+  }
+  .concept .a-shortcuts .a-shortcut:hover > svg:first-child {
+    transform: translateY(-3px) rotate(-10deg) scale(1.16);
+  }
+  .concept .a-shortcuts .a-tools:hover > svg:first-child {
+    transform: rotate(22deg) scale(1.14);
+  }
+}
+/* Wave transforms are independently driven; do not replace their smoothing. */
+:is(.concept, .p-card-modal)
+  :is(button, a[href], input, textarea, [role="option"]):is(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
+  translate: none !important;
+  scale: 1 !important;
+  box-shadow: none;
+}
+.concept .a-home .a-wave-visual {
+  transition:
+    transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.16s,
+    box-shadow 0.28s;
+}
+.concept .a-gallery :is(a:hover, a:active),
+.concept .a-draw-results button:hover {
+  translate: none;
+}
+.concept .a-gallery:is(.is-dragging, .is-coasting) a {
+  scale: 1 !important;
+  box-shadow: none;
+}
+.a-gallery.is-coasting [data-wave-item] {
+  --wave: 0 !important;
+}
+.p-motion-off :is(button, a, input, textarea, [role="option"]):hover {
+  translate: none !important;
+}
+.p-motion-off :is(button, a, [role="option"]) > svg {
+  transform: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.concept, .p-card-modal)
+    :is(
+      button,
+      a,
+      input,
+      textarea,
+      summary,
+      [role="option"],
+      [role="tab"],
+      [role="switch"]
+    ) {
+    transition: none !important;
+  }
+  :is(.concept, .p-card-modal) :is(button, a, summary, [role="option"]):hover {
+    translate: none !important;
+  }
+  :is(.concept, .p-card-modal) :is(button, a, [role="option"]) > svg {
+    transform: none !important;
+  }
+}

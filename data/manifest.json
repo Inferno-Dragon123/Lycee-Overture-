@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "fa9a2807def8a2da96d5840d705275e0bfea3a374693ec7ff43c92c2529c8d65",
+  "cardCount": 9956,
+  "sourceRepository": "https://github.com/Inferno-Dragon123/lycee-toolbox",
+  "sourceHashes": {
+    "data/catalog.json": "b3f556b2ef8c66c4f081a31d9df6ce4e8e5eec25cf9b21eff692bbbe7d11682e",
+    "lycee-japanese-database-final.json": "fa544fbbe111c9568e65fc014f977e9954bb0e03a8d8d612253ac66967c6fafc",
+    "lycee-chinese-database-final.json": "bca4c39d76cc916efb432fac25479a1f91bf9a7e8fe4269687ef2110ae2e1ead"
+  },
+  "imageSource": "https://lycee-tcg.com/card/image/",
+  "identityMapping": "unresolved",
+  "unknownSeries": [
+    "LO-5813",
+    "LO-4842",
+    "LO-4841",
+    "LO-4840",
+    "LO-4395",
+    "LO-1459",
+    "LO-1154",
+    "LO-0999",
+    "LO-0118",
+    "LO-0117",
+    "LO-0116",
+    "LO-0115"
+  ],
+  "missingTranslations": [],
+  "translationCorrections": {
+    "cost-context-v1": {
+      "sourceCatalogVersion": "ecc75354130e3835f40160f997a98472819feba5b63aec99fa79c903cac45f0d",
+      "correctedCards": 50,
+      "correctedOccurrences": 61
+    }
+  }
+}

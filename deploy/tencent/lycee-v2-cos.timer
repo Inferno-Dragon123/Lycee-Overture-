@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily encrypted offsite backup for Lycee V2
+
+[Timer]
+OnCalendar=*-*-* 04:40:00
+RandomizedDelaySec=600
+Persistent=true
+
+[Install]
+WantedBy=timers.target
