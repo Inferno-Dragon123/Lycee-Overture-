@@ -11,6 +11,7 @@ import {
 } from "#shared/domain/deck-loom-v3";
 import ChoiceListbox from "../ChoiceListbox.vue";
 import DeckSaveDialog from "./DeckSaveDialog.vue";
+import OrbitButton from "../OrbitButton.vue";
 import { deckReturnPath } from '#shared/domain/presentation';
 const route = useRoute(),
   library = usePracticeDecks(),
@@ -140,7 +141,7 @@ async function publication(meta: {
   description: string;
   cover: string;
 }) {
-  if (!deck.value) return;
+  if (!deck.value || publishBusy.value) return;
   publishBusy.value = true;
   error.value = "";
   try {
@@ -182,19 +183,19 @@ function add() {
 </script>
 <template>
   <section class="deck-detail">
-    <a :href="returnTo" class="p-text-link" @click="returnToSource"
+    <OrbitButton as-child variant="ghost" tone="neutral"><a :href="returnTo" class="p-text-link" @click="returnToSource"
       >{{ returnLabel }}</a
-    >
+    ></OrbitButton>
     <p v-if="error" role="alert">{{ error }}</p>
     <template v-if="deck"
       ><h2>{{ deck.name }}</h2>
       <p class="deck-full-description">{{ deck.description }}</p>
       <div class="deck-detail-actions">
-        <button class="p-button" @click="state.editSaved(deck)">
-          编辑该卡组</button
-        ><button class="p-button" @click="sharing">导出分享链接</button
-        ><button v-if="imported" class="p-button" @click="add">
-          添加到我的卡组</button
+        <OrbitButton :variant="imported ? 'outline' : 'default'" :tone="imported ? 'neutral' : 'brand'" @click="state.editSaved(deck)">
+          编辑该卡组</OrbitButton
+        ><OrbitButton variant="outline" tone="neutral" @click="sharing">导出分享链接</OrbitButton
+        ><OrbitButton v-if="imported" @click="add">
+          添加到我的卡组</OrbitButton
         ><ChoiceListbox
           v-model="tool"
           label="导入工具箱"
@@ -203,11 +204,11 @@ function add() {
             { value: 'list', label: '生成卡表' },
             { value: 'images', label: '打印卡图 PDF' },
           ]"
-        /><button class="p-button" @click="tools">导入并打开工具</button
-        ><button class="p-button" @click="hand">导入并跳转起手模拟</button
-        ><button class="p-button" @click="publish = true">
+        /><OrbitButton variant="outline" tone="neutral" @click="tools">导入并打开工具</OrbitButton
+        ><OrbitButton variant="outline" tone="neutral" @click="hand">导入并跳转起手模拟</OrbitButton
+        ><OrbitButton variant="outline" tone="neutral" @click="publish = true">
           {{ publicationInfo ? "修改发布信息" : "发布到卡组社区" }}
-        </button>
+        </OrbitButton>
       </div>
       <label v-if="share" class="workflow-field"
         >分享链接<input
@@ -242,6 +243,7 @@ function add() {
         />
         <div class="v3-attributes">
           <button
+            type="button"
             v-for="a in ['雪', '月', '花', '宙', '日', '無']"
             :key="a"
             :aria-pressed="filters.attributes.includes(a)"
@@ -259,6 +261,7 @@ function add() {
         <h3>{{ label }}</h3>
         <div class="deck-detail-grid">
           <button
+            type="button"
             v-for="card in cards"
             :key="card.code"
             @click="state.selected.value = card"

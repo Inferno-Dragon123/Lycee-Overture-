@@ -4,14 +4,18 @@ import DeckSearchBar from "./library/DeckSearchBar.vue";
 import ChoiceListbox from "./ChoiceListbox.vue";
 import WorkflowDialog from "./WorkflowDialog.vue";
 import CardSearch from "./CardSearch.vue";
+import OrbitButton from "./OrbitButton.vue";
+import { Trash2 } from "lucide-vue-next";
 const state = useShowcase(),
   account = useWorkflowAccount();
 const route = useRoute();
+const root = ref<HTMLElement>();
 const view = useState('community-workbench-view', () => ({ filters: emptyDeckSearch(), source: 'all', page: 1, codes: [] as string[], match: 'all' }));
 const { filters, source, page, codes, match } = toRefs(view.value);
 const error = ref(""),
   busy = ref(false),
   picker = ref(false);
+const pendingId = ref<string | null>(null);
 interface Item extends LibraryDeck {
   author?: string;
   author_name?: string;
@@ -83,15 +87,25 @@ const cover = (d: Item) =>
     d.cover || d.cover_code || Object.keys(d.quantities || {})[0] || "",
   )?.img;
 async function manage(item: Item, action: string) {
+  if (pendingId.value) return;
+  pendingId.value = item.id;
+  error.value = "";
   try {
     await $fetch("/api/workflow/community", {
       method: action === "delete" ? "DELETE" : "PATCH",
       body: { id: item.id, version: item.version, action },
     });
+    if (action === "delete") deleting.value = null;
     await load();
+    if (action === "delete") {
+      await nextTick();
+      root.value?.querySelector<HTMLElement>('button:not(:disabled), a[href]')?.focus();
+    }
   } catch (e) {
     error.value =
       (e as { data?: { message: string } }).data?.message || "操作失败";
+  } finally {
+    pendingId.value = null;
   }
 }
 const deleting = ref<Item | null>(null),
@@ -103,7 +117,7 @@ const deleting = ref<Item | null>(null),
   });
 </script>
 <template>
-  <section class="community-workbench">
+  <section ref="root" class="community-workbench">
     <div class="deck-detail-actions">
       <ChoiceListbox
         v-model="source"
@@ -115,15 +129,15 @@ const deleting = ref<Item | null>(null),
           { value: 'official_user', label: '官网玩家' },
           { value: 'mine', label: '我的发布' },
         ]"
-      /><button class="p-button" @click="state.utility.value = 'account'">
-        {{ account.user.value ? "账号管理" : "登录后发布" }}</button
-      ><NuxtLink to="/concepts/orbit/decks" class="p-button"
-        >从我的卡组发布</NuxtLink
+      /><OrbitButton variant="outline" tone="neutral" @click="state.utility.value = 'account'">
+        {{ account.user.value ? "账号管理" : "登录后发布" }}</OrbitButton
+      ><OrbitButton as-child><NuxtLink to="/concepts/orbit/decks"
+        >从我的卡组发布</NuxtLink></OrbitButton
       >
     </div>
     <DeckSearchBar v-model="filters" />
     <div class="deck-detail-actions">
-      <button class="p-button" @click="picker = true">添加卡牌检索条件</button
+      <OrbitButton variant="outline" tone="neutral" @click="picker = true">添加卡牌检索条件</OrbitButton
       ><ChoiceListbox
         v-model="match"
         label="卡牌匹配"
@@ -141,10 +155,10 @@ const deleting = ref<Item | null>(null),
     </div>
     <p v-if="busy" role="status">正在读取卡组…</p>
     <p v-if="error" role="alert">
-      {{ error }}<button @click="load">重试</button>
+      {{ error }}<OrbitButton variant="ghost" tone="neutral" :disabled="busy" @click="load">重试</OrbitButton>
     </p>
     <div class="library-grid">
-      <article v-for="deck in result.items" :key="deck.id">
+      <article v-for="deck in result.items" :key="deck.id" class="library-entry">
         <NuxtLink
           class="library-cover"
           :to="{ path: '/concepts/orbit/deck', query: { publication: deck.id, ...(deck.legacy ? { legacy: '1' } : {}), from: route.fullPath } }"
@@ -156,26 +170,26 @@ const deleting = ref<Item | null>(null),
             <b>预览卡组 →</b>
           </div></NuxtLink
         >
-        <div v-if="source === 'mine'" class="deck-detail-actions">
-          <button
+        <div v-if="source === 'mine'" class="library-card-actions">
+          <OrbitButton variant="ghost" tone="neutral" :busy="pendingId === deck.id" :disabled="!!pendingId"
             @click="
               manage(deck, deck.status === 'public' ? 'unpublish' : 'publish')
             "
           >
-            {{ deck.status === "public" ? "下架" : "重新公开" }}</button
-          ><button @click="deleting = deck">删除发布</button>
+            {{ deck.status === "public" ? "下架" : "重新公开" }}</OrbitButton
+          ><OrbitButton variant="ghost" tone="danger" :disabled="!!pendingId" @click="error = ''; deleting = deck"><Trash2 aria-hidden="true" />删除发布</OrbitButton>
         </div>
       </article>
     </div>
     <p v-if="!busy && !result.items.length && !error">暂无符合条件的卡组。</p>
     <nav class="p-pagination">
-      <button :disabled="page <= 1 || busy" @click="page--">上一页</button
+      <OrbitButton variant="ghost" tone="neutral" :disabled="page <= 1 || busy" @click="page--">上一页</OrbitButton
       ><span
         >{{ result.page }} / {{ Math.max(1, result.pages) }} ·
         {{ result.total }} 套</span
-      ><button :disabled="page >= result.pages || busy" @click="page++">
+      ><OrbitButton variant="ghost" tone="neutral" :disabled="page >= result.pages || busy" @click="page++">
         下一页
-      </button>
+      </OrbitButton>
     </nav>
     <WorkflowDialog
       v-model:open="picker"
@@ -190,29 +204,22 @@ const deleting = ref<Item | null>(null),
           }
         "
         ><template #actions="{ card }"
-          ><button
+          ><OrbitButton variant="outline" tone="neutral"
             :disabled="
               codes.includes(card.code.slice(0, 7)) || codes.length >= 10
             "
             @click="codes.push(card.code.slice(0, 7))"
           >
             {{ codes.includes(card.code.slice(0, 7)) ? "已选" : "加入检索" }}
-          </button></template
+          </OrbitButton></template
         ></CardSearch
       ></WorkflowDialog
     ><WorkflowDialog
       v-model:open="confirmDelete"
       title="删除发布"
-      description="该发布将不再显示，已保存的本地副本不受影响。"
-      ><button
-        class="p-button"
-        @click="
-          deleting && manage(deleting, 'delete');
-          deleting = null;
-        "
-      >
-        确认删除
-      </button></WorkflowDialog
+      description="该发布将从社区删除且无法恢复，已保存的本地副本不受影响。"
+      ><p class="delete-object-name">{{ deleting?.name }}</p><p v-if="error" role="alert">{{ error }}</p>
+      <template #footer><OrbitButton variant="outline" tone="neutral" :disabled="!!pendingId" @click="deleting = null">取消</OrbitButton><OrbitButton tone="danger" :busy="!!pendingId" @click="deleting && manage(deleting, 'delete')"><Trash2 aria-hidden="true" />确认删除</OrbitButton></template></WorkflowDialog
     >
   </section>
 </template>

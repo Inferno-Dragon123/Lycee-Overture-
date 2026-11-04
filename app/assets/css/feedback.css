@@ -87,7 +87,11 @@
     .f-panel,
     .deck-loom,
     .v2-search,
-    .v3-search
+    .v3-search,
+    .reading-toc,
+    .strategy-search,
+    .article-search,
+    .reference-filters
   )
   input:not([type="number"]):is(:focus, :focus-visible) {
   outline: none;
@@ -95,6 +99,29 @@
 }
 :is(.concept, .p-card-modal) :is(.v2-search, .v3-search):focus-within {
   border-color: var(--line);
+  outline: none;
+  box-shadow: none;
+}
+/* Mark the actual search surface; borderless child inputs cannot show hover. */
+@media (hover: hover) and (pointer: fine) {
+  :is(.concept-orbit.a-inner, .p-card-modal.concept-orbit)
+    :is(.p-catalog-search, .v2-search, .v3-search):hover {
+    border-color: color-mix(in srgb, var(--ink) 48%, var(--line));
+    background-color: color-mix(in srgb, var(--surface) 96%, var(--ink) 4%);
+  }
+}
+/* A keyboard-only neutral bottom edge replaces the former green glow. */
+:is(.concept-orbit.a-inner, .p-card-modal.concept-orbit)
+  :is(.p-catalog-search, .v2-search, .v3-search):has(input:focus-visible) {
+  border-bottom: 2px solid var(--ink);
+  outline: none;
+  box-shadow: none;
+}
+:is(.concept-orbit.a-inner, .p-card-modal.concept-orbit)
+  :is(.shared-search-bar, .deck-search-bar, .deck-detail-filters, .reading-toc,
+      .strategy-search, .article-search, .reference-filters)
+  input:not([type="number"]):focus-visible {
+  border-bottom: 2px solid var(--ink);
   outline: none;
   box-shadow: none;
 }

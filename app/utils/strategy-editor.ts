@@ -1,4 +1,4 @@
-import {Node,Mark,mergeAttributes} from '@tiptap/core';
+import {Node,Mark,Extension,mergeAttributes} from '@tiptap/core';
 import {VueNodeViewRenderer} from '@tiptap/vue-3';
 import InlineCardNodeView from '~/components/concepts/strategy/InlineCardNodeView.vue';
 import ImageNodeView from '~/components/concepts/strategy/ImageNodeView.vue';
@@ -33,7 +33,16 @@ export const StrategyImage:Node=Image.extend({
 function parsedColor(element:HTMLElement){const value=element.style.color;if(/^#[0-9a-f]{6}$/i.test(value))return value;const rgb=/^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)$/.exec(value);return rgb&&rgb.slice(1).every(v=>Number(v)<=255)?'#'+rgb.slice(1).map(v=>Number(v).toString(16).padStart(2,'0')).join(''):null;}
 export const StrategyTextStyle=Mark.create({
   name:'textStyle',
+  priority:110,
   addAttributes(){return {color:{default:null,parseHTML:parsedColor},fontSize:{default:null,parseHTML:element=>/^\d+(?:\.\d+)?px$/.test(element.style.fontSize)?Math.round(Math.max(10,Math.min(72,Number.parseFloat(element.style.fontSize)))):null},underline:{default:null,parseHTML:element=>element.style.textDecoration==='none'?false:element.style.textDecoration==='underline'?true:null}};},
   parseHTML(){return [{tag:'span[style]'}];},
   renderHTML({HTMLAttributes}){const style=strategyStyleCss(HTMLAttributes);return ['span',{style:Object.entries(style).map(([key,value])=>key.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())+':'+value).join(';')},0];}
+});
+function linePaint(raw:string){const probe=document.createElement('span');probe.style.color=raw;return parsedColor(probe);}
+export const StrategyLineColors=Extension.create({
+  name:'strategyLineColors',
+  addGlobalAttributes(){return [
+    {types:['underline','strike'],attributes:{color:{default:null,parseHTML:(element:HTMLElement)=>linePaint(element.style.textDecorationColor),renderHTML:(attrs:Record<string,any>)=>attrs.color?{style:`text-decoration-color:${attrs.color}`}:{}}}},
+    {types:['horizontalRule'],attributes:{color:{default:null,parseHTML:(element:HTMLElement)=>linePaint(element.style.borderColor),renderHTML:(attrs:Record<string,any>)=>attrs.color?{style:`border-color:${attrs.color}`}:{}}}},
+  ];},
 });

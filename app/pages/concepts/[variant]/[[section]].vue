@@ -12,7 +12,7 @@ if (!concepts.some((concept) => concept.id === variant.value))
   throw createError({ statusCode: 404, message: "没有这个设计方案" });
 useSeoMeta({
   title: () =>
-    `${concepts.find((c) => c.id === variant.value)?.name} · Lycee 设计预览`,
+    variant.value === 'orbit' ? '站名占位符·LO卡查工具箱' : `${concepts.find((c) => c.id === variant.value)?.name} · Lycee 设计预览`,
 });
 </script>
 <template>

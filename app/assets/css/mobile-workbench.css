@@ -1,0 +1,33 @@
+/* Keep actions outside the mobile catalog's single scrolling viewport. */
+.p-workbench-actions { display: contents; }
+.concept-orbit .p-toast-message { width: min(480px, calc(100vw - 32px)); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 12px; border-radius: 12px; font-size: 13px; }
+.concept-orbit .p-toast-copy { min-width: 0; overflow-wrap: anywhere; line-height: 1.65; }
+.concept-orbit .p-toast-code { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.concept-orbit .p-toast-message > .p-icon { grid-column: 2; grid-row: 1; align-self: start; min-width: 36px; min-height: 36px; }
+.concept-orbit .p-toast-message > .v3-toast-locate { grid-column: 1 / -1; justify-self: start; min-height: 36px; padding: 4px 0; }
+.p-card-modal.p-card-detail { display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden; }
+.p-card-detail .p-detail-close-row { position: static; flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 60px; padding: 8px 24px; border-bottom: 1px solid var(--line); background: var(--bg); color: var(--muted); font-size: 13px; }
+.p-card-detail .p-detail-close-row .p-icon { width: 44px; height: 44px; flex-shrink: 0; }
+.p-card-detail .p-detail-body { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overscroll-behavior: contain; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 32px; padding: 24px 32px 32px; }
+.p-card-detail .p-detail-art { align-self: start; }
+.p-card-detail .p-detail-info { min-width: 0; }
+@media (max-width: 999px) {
+  .concept-orbit.a-filter-workbench { --catalog-header-height: 82px; --catalog-actions-height: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  .concept-orbit.a-filter-workbench > .p-page-flow { position: fixed; inset: var(--catalog-header-height) 0 var(--catalog-actions-height); overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; scroll-padding-block: 20px; }
+  .concept-orbit.a-filter-workbench .p-catalog { padding-top: 24px; }
+  .concept-orbit.a-filter-workbench .f-panel { bottom: calc(var(--catalog-actions-height) + 10px); }
+  .concept-orbit.a-filter-workbench .p-workbench-actions { position: fixed; inset: auto 0 0; z-index: 45; display: flex; justify-content: space-between; align-items: center; gap: 12px; height: var(--catalog-actions-height); padding: 8px 18px calc(8px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); }
+  .concept-orbit.a-filter-workbench .p-workbench-actions .p-fab { position: static; inset: auto; transform: none; min-height: 44px; min-width: 110px; border-radius: 9px; padding: 8px 14px; font-size: 14px; box-shadow: none; }
+  .concept-orbit.a-filter-workbench .p-workbench-actions .p-filter-fab { margin-right: auto; }
+  .concept-orbit.a-filter-workbench .p-workbench-actions .p-deck-fab { margin-left: auto; }
+  .concept-orbit .p-toast-message { top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); padding: 12px 14px; }
+  .concept-orbit.a-filter-workbench .p-toast-message { bottom: calc(var(--catalog-actions-height) + 12px); }
+  .concept-orbit.p-deck-open .p-toast-message { bottom: calc(var(--mobile-deck-footer-height, 160px) + 12px); }
+  .concept-orbit .p-toast-message > .p-icon { min-width: 44px; min-height: 44px; }
+  .concept-orbit .p-toast-message > .v3-toast-locate { min-height: 44px; }
+}
+@media (max-width: 600px) {
+  .concept-orbit.a-filter-workbench { --catalog-header-height: 70px; }
+  .p-card-detail .p-detail-close-row { padding-inline: 18px; }
+  .p-card-detail .p-detail-body { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 18px 20px 24px; }
+}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, X, MoreHorizontal, Check, Layers } from "lucide-vue-next";
+import { Search, X, MoreHorizontal, Check, Layers, Trash2 } from "lucide-vue-next";
 import { categoryLabels } from "#shared/domain/catalog";
 import { DECK_CARD_LIMIT } from "#shared/domain/deck";
 import {
@@ -9,6 +9,7 @@ import {
 import DeckCardTile from "./DeckCardTile.vue";
 import DeckSaveDialog from "../library/DeckSaveDialog.vue";
 import ChoiceListbox from "../ChoiceListbox.vue";
+import OrbitButton from "../OrbitButton.vue";
 import "~/assets/css/deck-loom-v3.css";
 const {
   entries,
@@ -123,11 +124,18 @@ async function changeTile(card: Parameters<typeof change>[0], delta: number) {
         ?.focus({ preventScroll: true });
   }
 }
-function clearDeck() {
+async function cancelClearing() {
+  confirmClear.value = false;
+  await nextTick();
+  root.value?.querySelector<HTMLButtonElement>('.v3-danger')?.focus();
+}
+async function clearDeck() {
   if (resetCurrent()) {
     confirmClear.value = false;
     more.value = false;
     notify("卡组已清空。");
+    await nextTick();
+    root.value?.querySelector<HTMLInputElement>('#v3-deck-name')?.focus();
   }
 }
 watch(lastEdit, (value) => {
@@ -167,13 +175,13 @@ onBeforeUnmount(() => clearTimeout(highlightTimer));
       <div class="v3-title-row">
         <Layers :size="18" /><label class="sr-only" for="v3-deck-name"
           >当前卡组名称</label
-        ><input id="v3-deck-name" v-model="deckName" maxlength="100" :disabled="!editable" /><button
+        ><input id="v3-deck-name" v-model="deckName" maxlength="100" :disabled="!editable" /><OrbitButton variant="ghost" tone="neutral" size="icon"
           aria-label="卡组更多操作"
           :aria-expanded="more"
           @click="more = !more"
         >
           <MoreHorizontal :size="20" />
-        </button>
+        </OrbitButton>
       </div>
       <p class="v3-total">
         <strong data-testid="prototype-total">{{ total }}</strong> /
@@ -187,30 +195,31 @@ onBeforeUnmount(() => clearTimeout(highlightTimer));
       </p>
       <p v-if="catalog.error.value" class="v3-notice" role="alert">
         {{ catalog.error.value
-        }}<button @click="catalog.load">重试读取卡库</button>
+        }}<OrbitButton variant="ghost" tone="neutral" @click="catalog.load">重试读取卡库</OrbitButton>
       </p>
       <p v-if="storageError" class="v3-notice" role="alert">
         {{ storageError }}请先备份并修复本地记录。
       </p>
       <div v-if="more" class="v3-more">
         <p v-if="saveError" role="alert">{{ saveError }}</p>
-        <button
+        <OrbitButton variant="ghost" tone="danger"
           class="v3-danger"
           :disabled="!editable || !entries.length"
           @click="confirmClear = true"
         >
-          清空当前卡组
-        </button>
+          <Trash2 aria-hidden="true" />清空当前卡组
+        </OrbitButton>
         <div
           v-if="confirmClear"
           role="alertdialog"
           aria-label="确认清空卡组"
           aria-describedby="v3-clear-message"
+          @keydown.esc.stop.prevent="cancelClearing"
         >
-          <p id="v3-clear-message">清空当前卡组？此操作同时删除当前草稿。</p>
-          <button ref="cancelClear" @click="confirmClear = false">
-            取消清空</button
-          ><button @click="clearDeck">确认清空</button>
+          <p id="v3-clear-message">清空「{{ deckName || '未命名卡组' }}」？此操作同时删除当前草稿，无法恢复；已保存的卡组不受影响。</p>
+          <OrbitButton as-child variant="outline" tone="neutral"><button ref="cancelClear" type="button" @click="cancelClearing">
+            取消清空</button></OrbitButton
+          ><OrbitButton tone="danger" @click="clearDeck"><Trash2 aria-hidden="true" />确认清空</OrbitButton>
         </div>
       </div>
       <div class="v3-toolbar">
@@ -241,13 +250,13 @@ onBeforeUnmount(() => clearTimeout(highlightTimer));
               { value: 'attribute', label: '属性排序' },
               { value: 'category', label: '类别排序' },
             ]"
-          /><button
+          /><OrbitButton variant="ghost" tone="neutral" size="icon"
             :aria-expanded="searchOpen"
             aria-label="卡组内搜索"
             @click="toggleSearch"
           >
             <Search :size="18" />
-          </button>
+          </OrbitButton>
         </div>
         <div v-if="searchOpen" class="v3-search">
           <Search :size="16" /><input
@@ -256,7 +265,7 @@ onBeforeUnmount(() => clearTimeout(highlightTimer));
             aria-label="搜索当前卡组"
             placeholder="名称或完整编号"
             maxlength="200"
-          /><button
+          /><OrbitButton variant="ghost" tone="neutral" size="icon"
             v-if="filters.q"
             aria-label="清空卡组搜索"
             @click="
@@ -265,7 +274,7 @@ onBeforeUnmount(() => clearTimeout(highlightTimer));
             "
           >
             <X :size="16" />
-          </button>
+          </OrbitButton>
         </div>
         <div class="v3-attributes" aria-label="卡组属性">
           <span>属性</span
@@ -291,7 +300,7 @@ onBeforeUnmount(() => clearTimeout(highlightTimer));
         <Search :size="30" />
         <h3>当前条件下没有卡牌</h3>
         <p>卡组仍有 {{ entries.length }} 种卡牌。</p>
-        <button @click="resetFilters">清空卡组筛选</button>
+        <OrbitButton variant="ghost" tone="neutral" @click="resetFilters">清空卡组筛选</OrbitButton>
       </div>
       <p v-if="activeFilters && visibleCards.length" class="v3-filter-status">
         显示 {{ visibleCards.length }} / {{ entries.length }} 种<button
@@ -319,19 +328,19 @@ onBeforeUnmount(() => clearTimeout(highlightTimer));
     <footer class="v3-footer">
       <p>仅校验张数与完整编号；特殊构筑限制尚未核实。</p>
       <div>
-        <button
+        <OrbitButton variant="outline" tone="neutral"
           class="v3-save-draft"
           :disabled="!editable || !total"
           @click="saveDraft()"
         >
-          保存草稿</button
-        ><button
+          保存草稿</OrbitButton
+        ><OrbitButton
           class="v3-save"
           :disabled="!editable || total !== DECK_CARD_LIMIT"
           @click="saveOpen = true"
         >
           <Check :size="16" />保存卡组
-        </button>
+        </OrbitButton>
       </div>
       <small>当前草稿自动保留在本机 · 保存需 {{ DECK_CARD_LIMIT }} 张</small>
     </footer>

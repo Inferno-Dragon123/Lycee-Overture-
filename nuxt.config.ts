@@ -22,6 +22,7 @@ export default defineNuxtConfig({
   vite: { plugins: [tailwindcss()], worker: { format: "es" } },
   nitro: {
     serverAssets: [
+      { baseName: 'rule-downloads', dir: fileURLToPath(new URL('./public/assets', import.meta.url)) },
       {
         baseName: "catalog",
         dir: fileURLToPath(new URL("./data", import.meta.url)),
@@ -32,7 +33,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: "zh-CN" },
-      title: "Lycee Overture · 卡查工具箱",
+      title: "站名占位符·LO卡查工具箱",
       meta: [
         {
           name: "description",

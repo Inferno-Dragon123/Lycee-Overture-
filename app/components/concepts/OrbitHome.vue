@@ -22,6 +22,7 @@ import {
   DialogClose,
 } from "reka-ui";
 import ChoiceListbox from "./ChoiceListbox.vue";
+import OrbitButton from "./OrbitButton.vue";
 import CardStage from "./CardStage.vue";
 import HeroStage from "./HeroStage.vue";
 import DemoBackpack from "./DemoBackpack.vue";
@@ -426,9 +427,9 @@ onBeforeUnmount(() => dispose());
           ><DialogTitle>更换展示卡牌</DialogTitle
           ><DialogDescription
             >从背包选择任意范围参与轮播，或随机展示三张；卡牌可从全站卡库免费添加。</DialogDescription
-          ><DialogClose class="p-icon p-dialog-close" aria-label="关闭展示设置"
+          ><OrbitButton as-child variant="ghost" tone="neutral" size="icon"><DialogClose class="p-icon p-dialog-close" aria-label="关闭展示设置"
             ><X
-          /></DialogClose>
+          /></DialogClose></OrbitButton>
           <div class="a-picker-filters">
             <ChoiceListbox
               v-model="series"
@@ -444,8 +445,7 @@ onBeforeUnmount(() => dispose());
             >搜索背包<input v-model="pickQuery" placeholder="卡号或名称"
           /></label>
           <div class="a-picker-actions">
-            <button
-              class="p-button p-button-quiet"
+            <OrbitButton variant="outline" tone="neutral"
               @click="
                 selection = [
                   ...new Set([
@@ -455,18 +455,17 @@ onBeforeUnmount(() => dispose());
                 ]
               "
             >
-              全选当前范围</button
-            ><button class="p-button p-button-quiet" @click="selection = []">
-              清空选择</button
-            ><button
-              class="p-button p-button-quiet"
+              全选当前范围</OrbitButton
+            ><OrbitButton variant="ghost" tone="neutral" @click="selection = []">
+              清空选择</OrbitButton
+            ><OrbitButton variant="outline" tone="neutral"
               @click="
                 picker = false;
                 backpack = true;
               "
             >
               添加卡牌到背包
-            </button>
+            </OrbitButton>
           </div>
           <p>
             背包共 {{ totalOwned }} 张，当前范围 {{ candidates.length }} 种。
@@ -485,29 +484,27 @@ onBeforeUnmount(() => dispose());
             </button>
           </div>
           <div v-if="candidatePages > 1" class="p-pagination">
-            <button :disabled="pickPage <= 1" @click="pickPage--">上一页</button
+            <OrbitButton variant="ghost" tone="neutral" :disabled="pickPage <= 1" @click="pickPage--">上一页</OrbitButton
             ><span>{{ pickPage }} / {{ candidatePages }}</span
-            ><button :disabled="pickPage >= candidatePages" @click="pickPage++">
+            ><OrbitButton variant="ghost" tone="neutral" :disabled="pickPage >= candidatePages" @click="pickPage++">
               下一页
-            </button>
+            </OrbitButton>
           </div>
           <p v-if="!candidates.length">此范围没有卡牌。</p>
           <p v-if="storageError" role="alert">{{ storageError }}</p>
           <p v-if="pickMessage" role="status">{{ pickMessage }}</p>
           <div class="a-picker-actions">
-            <button
-              class="p-button p-button-quiet"
+            <OrbitButton variant="outline" tone="neutral"
               :disabled="!candidates.length"
               @click="random"
             >
-              <Shuffle :size="17" />范围内随机</button
-            ><button
-              class="p-button"
+              <Shuffle :size="17" />范围内随机</OrbitButton
+            ><OrbitButton
               :disabled="!selection.length"
               @click="if (setDisplay(selection)) picker = false;"
             >
               应用范围（{{ selection.length }} 张）
-            </button>
+            </OrbitButton>
           </div></DialogContent
         ></DialogPortal
       ></DialogRoot

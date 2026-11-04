@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import WorkflowDialog from "../WorkflowDialog.vue";
+import OrbitButton from "../OrbitButton.vue";
 const open = defineModel<boolean>("open", { required: true });
 const props = defineProps<{
   name: string;
@@ -34,6 +35,10 @@ watch(open, (v) => {
         : cards.value[0]?.code || "";
   }
 });
+function submit() {
+  if (props.busy || !name.value.trim() || !cover.value) return;
+  emit("save", { name: name.value.trim(), description: description.value.trim(), cover: cover.value });
+}
 </script>
 <template>
   <WorkflowDialog
@@ -42,13 +47,7 @@ watch(open, (v) => {
     description="确认名称、简介和封面。"
     ><form
       class="workflow-form"
-      @submit.prevent="
-        emit('save', {
-          name: name.trim(),
-          description: description.trim(),
-          cover,
-        })
-      "
+      @submit.prevent="submit"
     >
       <label>卡组名称<input v-model="name" maxlength="100" required /></label
       ><label
@@ -72,9 +71,7 @@ watch(open, (v) => {
         </div>
       </fieldset>
       <p v-if="error" role="alert">{{ error }}</p>
-      <button class="p-button" :disabled="busy || !name.trim() || !cover">
-        {{ busy ? "保存中…" : "确认保存" }}
-      </button>
+      <OrbitButton type="submit" :busy="busy" :disabled="!name.trim() || !cover">确认保存</OrbitButton>
     </form></WorkflowDialog
   >
 </template>

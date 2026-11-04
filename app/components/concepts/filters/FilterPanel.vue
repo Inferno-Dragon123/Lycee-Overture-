@@ -10,7 +10,10 @@ import FilterMulti from "./FilterMulti.vue";
 import FilterRange from "./FilterRange.vue";
 import AbilityPicker from "./AbilityPicker.vue";
 import MatchMode from "./MatchMode.vue";
+import OrbitButton from "../OrbitButton.vue";
 const props = defineProps<{ engine: ReturnType<typeof createFilterEngine>; pending: boolean; error: string; embedded?: boolean }>();
+const route = useRoute();
+const Action = computed(() => route.path.startsWith('/concepts/orbit') ? OrbitButton : 'button');
 const model = defineModel<FilterModel>({ required: true });
 const emit = defineEmits<{ close: []; apply: []; clear: [] }>();
 const panel = ref<HTMLElement>();
@@ -35,7 +38,7 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <aside ref="panel" class="p-filter-sheet f-panel" aria-label="详细筛选面板" @keydown.esc.stop.prevent="emit('close')">
-    <div class="f-panel-heading"><h2>详细筛选</h2><button class="p-icon" aria-label="关闭详细筛选" @click="emit('close')"><X :size="20" /></button></div>
+    <div class="f-panel-heading"><h2>详细筛选</h2><component :is="Action" class="p-icon" variant="ghost" tone="neutral" size="icon" aria-label="关闭详细筛选" @click="emit('close')"><X :size="20" /></component></div>
     <div class="f-panel-scroll">
       <Disclosure v-for="group in groups" :key="group.id" :default-open="['basic', 'numbers'].includes(group.id)" as="section" class="f-group" v-slot="{ open }">
         <DisclosureButton class="f-group-heading"><span>{{ group.label }}</span><span v-if="group.count" class="f-count">{{ group.count }}</span><ChevronDown :size="16" :class="{ 'is-open': open }" /></DisclosureButton>
@@ -74,7 +77,7 @@ onBeforeUnmount(() => {
     <div class="f-panel-footer">
       <p v-if="error" role="alert" class="f-error">{{ error }}</p>
       <p class="f-apply-state" role="status">{{ error ? '请修正筛选条件' : pending ? '正在刷新…' : '结果自动更新' }}</p>
-      <div><button class="f-clear" @click="model = emptyFilters(); emit('clear')"><RotateCcw :size="16" />清空</button></div>
+      <div><component :is="Action" class="f-clear" variant="ghost" tone="neutral" @click="model = emptyFilters(); emit('clear')"><RotateCcw :size="16" />清空</component></div>
     </div>
   </aside>
 </template>

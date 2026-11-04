@@ -5,8 +5,10 @@ import { useCatalogFilters } from "~/composables/useCatalogFilters";
 import { DECK_CARD_LIMIT } from "#shared/domain/deck";
 import ChoiceListbox from "./ChoiceListbox.vue";
 import FilterPanel from "./filters/FilterPanel.vue";
+import OrbitButton from "./OrbitButton.vue";
 import { firstSeriesCards } from '#shared/domain/presentation';
 const props = defineProps<{ variant: string }>();
+const Action = computed(() => props.variant === 'orbit' ? OrbitButton : 'button');
 const route = useRoute();
 const { mode, filtersOpen, selected, total, count, change, editable } = useShowcase();
 const { draft, applied, pending, error, result, chips, apply, clear, pageTo, sortBy, remove, engine } = useCatalogFilters();
@@ -41,7 +43,7 @@ async function applyPreview() {
       ><input
         id="prototype-search"
         v-model="q"
-        placeholder="卡号、名称或效果，自动搜索"
+        placeholder="卡号、名称或效果"
         maxlength="200"
         @keydown.enter.prevent="applyPreview"
       /><button
@@ -59,13 +61,14 @@ async function applyPreview() {
         >按系列探索</NuxtLink
       ><NuxtLink :to="`${base}?view=all`" :class="{ active: !seriesView }"
         >全部卡牌</NuxtLink
-      ><span>{{ catalog.ready.value ? `完整卡库 · ${catalog.cards.value.length} 张卡牌` : "正在读取完整卡库" }}</span>
+      ><span v-if="catalog.ready.value" class="p-catalog-count" :aria-label="`完整卡库 · ${catalog.cards.value.length} 张卡牌`"><span class="p-catalog-count-label">完整卡库 · </span>{{ catalog.cards.value.length }} 张<span class="p-catalog-count-label">卡牌</span></span><span v-else class="p-catalog-count">正在读取完整卡库</span>
+      <ChoiceListbox v-if="!seriesView" v-model="sort" class="p-catalog-sort" label="结果排序" hide-label :options="[{value:'code-desc',label:'编号降序'}, {value:'code-asc',label:'编号升序'}, {value:'name',label:'名称排序'}]" />
     </div>
-    <p v-if="catalog.error.value" role="alert">{{ catalog.error.value }} <button @click="catalog.load">重试读取卡库</button></p>
+    <p v-if="catalog.error.value" role="alert">{{ catalog.error.value }} <component :is="Action" variant="ghost" tone="neutral" :busy="catalog.loading.value" :disabled="catalog.loading.value" @click="catalog.load">重试读取卡库</component></p>
     <p v-if="error && !filtersOpen" role="alert" class="f-error f-main-error">{{ error }}</p>
     <div v-if="chips.length || pending" class="f-applied" aria-label="生效筛选条件">
       <button v-for="chip in chips" :key="chip.key + ':' + chip.value" class="f-chip" :aria-label="'移除 ' + chip.label" @click="remove(chip.key, chip.value)">{{ chip.label }}<X :size="14" /></button>
-      <button v-if="chips.length" class="f-clear-text" @click="clear">清空条件</button>
+      <component :is="Action" v-if="chips.length" class="f-clear-text" variant="ghost" tone="neutral" @click="clear">清空条件</component>
       <span v-if="pending" class="f-help" role="status">正在刷新…</span>
     </div>
     <Transition name="f-window"><FilterPanel v-if="filtersOpen" v-model="draft" :engine="engine" :pending="pending" :error="error" @close="filtersOpen = false" @apply="applyPreview" @clear="clear" /></Transition>
@@ -101,30 +104,31 @@ async function applyPreview() {
             ></NuxtLink>
           </div>
           <div class="p-pagination">
-            <button
+            <component :is="Action"
               class="p-icon"
+              variant="ghost" tone="neutral" size="icon"
               :disabled="seriesPage === 1"
               aria-label="上一页系列"
               @click="seriesPage--"
             >
-              <ArrowLeft :size="18" /></button
+              <ArrowLeft :size="18" /></component
             ><span
               >{{ seriesPage }}
               <i>/ {{ Math.ceil(demoSeries.length / 8) }}</i></span
-            ><button
+            ><component :is="Action"
               class="p-icon"
+              variant="ghost" tone="neutral" size="icon"
               :disabled="seriesPage >= Math.ceil(demoSeries.length / 8)"
               aria-label="下一页系列"
               @click="seriesPage++"
             >
               <ArrowRight :size="18" />
-            </button></div
+            </component></div
         ></template>
         <template v-else
-          ><div class="p-collection-title">
+          ><div class="p-collection-title p-catalog-result-heading" :class="{ 'is-default': !selectedSeries && !chips.length }">
             <h2>{{ selectedSeries?.name || "探索全部卡牌" }}</h2>
-            <span>{{ result.total }} 张展示卡</span>
-            <ChoiceListbox v-model="sort" label="结果排序" hide-label :options="[{value:'code-desc',label:'编号降序'}, {value:'code-asc',label:'编号升序'}, {value:'name',label:'名称排序'}]" />
+            <span>{{ result.total }} 张{{ selectedSeries || chips.length ? "匹配卡牌" : "展示卡" }}</span>
           </div>
           <div
             v-if="selectedSeries"
@@ -185,31 +189,33 @@ async function applyPreview() {
             class="p-pagination"
             aria-label="卡牌分页"
           >
-            <button
+            <component :is="Action"
               class="p-icon"
+              variant="ghost" tone="neutral" size="icon"
               :disabled="cardPage === 1"
               aria-label="上一页卡牌"
               @click="cardPage--"
             >
               <ArrowLeft :size="18" />
-            </button>
+            </component>
             <span
               >{{ cardPage }} <i>/ {{ result.pages }}</i></span
             >
-            <button
+            <component :is="Action"
               class="p-icon"
+              variant="ghost" tone="neutral" size="icon"
               :disabled="cardPage >= result.pages"
               aria-label="下一页卡牌"
               @click="cardPage++"
             >
               <ArrowRight :size="18" />
-            </button>
+            </component>
           </div>
           <div v-if="catalog.ready.value && !cards.length" class="p-blank">
             <Search :size="34" />
             <h3>没有符合条件的卡牌</h3>
             <p>可调整条件后重试。</p>
-            <button class="p-button" @click="clear">清空筛选</button>
+            <component :is="Action" :class="{ 'p-button': variant !== 'orbit' }" variant="ghost" tone="neutral" @click="clear">清空筛选</component>
           </div></template
         >
       </div>

@@ -84,10 +84,12 @@
     transparent 72%
   );
 }
-/* Content stays open to the background; readable surfaces are local to controls. */
+/* Keep the page-edge emblems visible through the content area. */
 .a-inner .p-main,
-.a-inner .p-section,
 .a-inner .p-catalog-results {
+  background: transparent;
+}
+.concept-orbit.a-inner .p-section {
   background: transparent;
 }
 .a-inner .p-footer {

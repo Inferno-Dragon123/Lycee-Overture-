@@ -7,8 +7,11 @@ import {
   filterParams,
 } from "#shared/domain/filters";
 import FilterPanel from "./filters/FilterPanel.vue";
+import OrbitButton from "./OrbitButton.vue";
 import type { Card } from "#shared/domain/catalog";
 const props = defineProps<{ codes?: string[]; artSelectable?: boolean }>();
+const route = useRoute();
+const Action = computed(() => route.path.startsWith('/concepts/orbit') ? OrbitButton : 'button');
 const emit = defineEmits<{ choose: [Card] }>();
 const catalog = useOrbitCatalog();
 const engine = computed(() => createFilterEngine(catalog.cards.value));
@@ -80,7 +83,7 @@ function pageTo(page: number) {
         @click="expanded = !expanded"
       >
         <SlidersHorizontal :size="20" /></button
-      ><button v-if="model.q" @click="model.q = ''">清空</button>
+      ><component :is="Action" v-if="model.q" variant="ghost" tone="neutral" @click="model.q = ''">清空</component>
     </div>
     <div class="shared-search-layout" :class="{ 'with-filters': expanded }">
       <FilterPanel
@@ -94,10 +97,10 @@ function pageTo(page: number) {
         @apply="apply"
         @clear="clear"
       />
-      <div>
+      <div class="shared-search-results">
         <p v-if="catalog.loading.value">正在读取完整卡库…</p>
         <p v-if="catalog.error.value" role="alert">
-          {{ catalog.error.value }}<button @click="catalog.load">重试</button>
+          {{ catalog.error.value }}<component :is="Action" variant="ghost" tone="neutral" :busy="catalog.loading.value" :disabled="catalog.loading.value" @click="catalog.load">重试</component>
         </p>
         <p v-if="error && !expanded" role="alert">{{ error }}</p>
         <p>
@@ -105,7 +108,7 @@ function pageTo(page: number) {
             · 卡库 {{ catalog.cards.value.length }} 种</span
           >
         </p>
-        <div class="shared-card-grid a-wallet-grid">
+        <div class="shared-card-grid">
           <article
             v-for="card in result.cards"
             :key="card.code"
@@ -119,29 +122,29 @@ function pageTo(page: number) {
             >
               <img :src="card.img" :alt="card.name" loading="lazy" />
             </component>
-            <h3>{{ card.code }} · {{ card.rarity }}</h3>
-            <p>{{ card.name }}</p>
-            <slot name="actions" :card="card"
-              ><button @click="emit('choose', card)">选择卡牌</button></slot
-            >
+            <h3><span class="shared-card-code">{{ card.code }}</span><span> · {{ card.rarity }}</span></h3>
+            <p class="shared-card-name" :title="card.name">{{ card.name }}</p>
+            <div class="shared-card-actions"><slot name="actions" :card="card"
+              ><component :is="Action" variant="outline" tone="neutral" @click="emit('choose', card)">选择卡牌</component></slot
+            ></div>
           </article>
         </div>
         <p v-if="!result.total">此范围没有卡牌。</p>
         <nav class="p-pagination" aria-label="检索分页">
-          <button
+          <component :is="Action" variant="ghost" tone="neutral"
             :disabled="result.page <= 1"
             aria-label="上一页背包"
             @click="pageTo(result.page - 1)"
           >
-            上一页</button
+            上一页</component
           ><span>{{ result.page }} / {{ result.pages }}</span
-          ><button
+          ><component :is="Action" variant="ghost" tone="neutral"
             :disabled="result.page >= result.pages"
             aria-label="下一页背包"
             @click="pageTo(result.page + 1)"
           >
             下一页
-          </button>
+          </component>
         </nav>
       </div>
     </div>

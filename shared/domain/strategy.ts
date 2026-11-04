@@ -4,6 +4,11 @@ export interface StrategyArticle extends StrategyBody { id: string; revision: nu
 export interface StrategySnapshot { id: string; source: 'personal'|'community'|'legacy'; sourceId: string; name: string; author: string; quantities: Record<string,number>; sourceUrl: string; createdAt: string; unavailable?: boolean }
 export interface StrategyGroup { id: string; revision: number; name: string; region: string; platform: string; description: string; contact: string; url: string; expiresAt: string; author: string; public: boolean; canEdit?: boolean }
 export const strategyCategories = ['构筑攻略','单卡分析','对局心得','入门教学','环境讨论'];
+export function strategyLineColor(raw: unknown): string | null {
+  if (raw === undefined || raw === null || raw === '') return null;
+  if (typeof raw !== 'string' || !/^#[0-9a-f]{6}$/i.test(raw)) throw new Error('线条颜色无效');
+  return raw.toLowerCase();
+}
 export interface StrategyTextStyle { color?: string; fontSize?: number; bold?: boolean; italic?: boolean; underline?: boolean }
 export interface StrategyLayout { width?: number; align?: 'left'|'center'|'right'; wrap?: boolean; columns?: number; offset?: number }
 export function strategyTextStyle(raw:unknown):StrategyTextStyle {
@@ -88,10 +93,12 @@ export function validateStrategy(raw:unknown,publishing=false):StrategyBody {
     if(n.marks){if(!Array.isArray(n.marks)||n.marks.length>8)throw new Error('格式无效');out.marks=n.marks.map(m=>{
       if(!['bold','italic','strike','code','underline','link','textStyle'].includes(m.type))throw new Error('不支持的文字格式');
       if(m.type==='textStyle')return {type:'textStyle',attrs:strategyTextStyle(m.attrs)};
+      if(m.type==='underline'||m.type==='strike'){const color=strategyLineColor(m.attrs?.color);return color?{type:m.type,attrs:{color}}:{type:m.type};}
       return m.type==='link'?{type:'link',attrs:{href:safeStrategyUrl(m.attrs?.href),target:'_blank',rel:'noopener noreferrer'}}:{type:m.type};
     });}
     if(n.type==='heading')out.attrs={level:Math.max(2,Math.min(4,Number(n.attrs?.level)||2))};
     if(n.type==='orderedList')out.attrs={start:Math.max(1,Math.min(999,Number(n.attrs?.start)||1))};
+    if(n.type==='horizontalRule'){const color=strategyLineColor(n.attrs?.color);if(color)out.attrs={color};}
     if(n.type==='image')out.attrs={src:media(n.attrs?.src),alt:str(n.attrs?.alt||'',200),title:str(n.attrs?.title||'',200),layout:strategyLayout(n.attrs?.layout),textStyle:strategyTextStyle(n.attrs?.textStyle)};
     if(n.type==='cardMention')out.attrs={code:code(n.attrs?.code),textStyle:strategyTextStyle(n.attrs?.textStyle)};
     if(n.type==='reference'){

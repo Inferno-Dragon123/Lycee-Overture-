@@ -15,13 +15,13 @@ defineProps<{
 const value = defineModel<string>({ required: true });
 </script>
 <template>
-  <Listbox v-model="value" as="div" class="relative min-w-0 text-sm">
+  <Listbox v-model="value" as="div" class="workbench-choice relative min-w-0 text-sm">
     <ListboxLabel
       :class="hideLabel ? 'sr-only' : 'mb-2 block text-sm text-[var(--muted)]'"
       >{{ label }}</ListboxLabel
     >
     <ListboxButton
-      class="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-left text-[var(--ink)] outline-none transition hover:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] active:scale-[.98]"
+      class="choice-button flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-left text-[var(--ink)] outline-none transition hover:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] active:scale-[.98]"
     >
       <slot name="button"
         ><span class="min-w-0 truncate">{{
@@ -39,7 +39,7 @@ const value = defineModel<string>({ required: true });
       leave-to-class="translate-y-1 scale-95 opacity-0"
     >
       <ListboxOptions
-        class="absolute left-0 right-0 z-[65] mt-2 max-h-64 overflow-y-auto rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1.5 text-[var(--ink)] shadow-2xl outline-none"
+        class="choice-options absolute left-0 right-0 z-[65] mt-2 max-h-64 overflow-y-auto rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1.5 text-[var(--ink)] shadow-2xl outline-none"
       >
         <ListboxOption
           v-for="option in options"
@@ -49,8 +49,8 @@ const value = defineModel<string>({ required: true });
           as="template"
         >
           <li
-            class="flex cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-3 transition"
-            :class="active ? 'bg-[var(--accent)] text-[var(--on-accent)]' : ''"
+            class="choice-option flex cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-3 transition"
+            :class="[active ? 'bg-[var(--accent)] text-[var(--on-accent)]' : '', { 'is-active': active, 'is-selected': selected }]"
           >
             <span>{{ option.label }}</span
             ><Check v-if="selected" class="size-4 shrink-0" />

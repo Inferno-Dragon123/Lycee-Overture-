@@ -1,0 +1,191 @@
+/* Opt-in functional actions. Stateful controls and homepage presentation retain their own patterns. */
+.concept-orbit {
+  --orbit-action-height: 40px;
+  --orbit-action-compact-height: 36px;
+  --orbit-action-radius: 9px;
+  --orbit-action-danger: #ffb3aa;
+  --orbit-action-danger-solid: #ae3f34;
+  --orbit-action-on-danger: #ffffff;
+  --orbit-action-solid-shade: #ffffff;
+  --orbit-action-hover: color-mix(in srgb, var(--ink) 8%, transparent);
+  --orbit-action-pressed: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.concept-orbit.a-light {
+  --orbit-action-danger: #a43128;
+  --orbit-action-danger-solid: #ab3329;
+  --orbit-action-solid-shade: #000000;
+}
+.concept-orbit .orbit-action[data-palette="orbit"] {
+  --action-bg: var(--accent);
+  --action-ink: var(--on-accent);
+  --action-border: transparent;
+  --action-state-shade: var(--action-ink);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: var(--orbit-action-height);
+  max-width: 100%;
+  padding: 8px 14px;
+  border: 1px solid var(--action-border);
+  border-radius: var(--orbit-action-radius);
+  background: var(--action-bg);
+  color: var(--action-ink);
+  font: 550 14px/1.5 "Geist Variable", "Microsoft YaHei", sans-serif;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  vertical-align: middle;
+  cursor: pointer;
+  transform: none;
+  translate: none;
+  scale: 1;
+  filter: none;
+  box-shadow: none;
+  transition: background-color 140ms, border-color 140ms, color 140ms, opacity 140ms;
+  touch-action: manipulation;
+}
+.concept-orbit .orbit-action[data-palette="orbit"][data-tone="neutral"] {
+  --action-bg: var(--soft);
+  --action-ink: var(--ink);
+}
+.concept-orbit .orbit-action[data-palette="orbit"][data-tone="danger"] {
+  --action-bg: var(--orbit-action-danger-solid);
+  --action-ink: var(--orbit-action-on-danger);
+}
+.concept-orbit .orbit-action[data-palette="orbit"][data-variant="default"][data-tone="brand"] { --action-state-shade: var(--orbit-action-solid-shade); }
+.concept-orbit .orbit-action[data-palette="orbit"][data-variant="default"][data-tone="danger"] { --action-state-shade: #000000; }
+.concept-orbit .orbit-action[data-palette="orbit"][data-variant="outline"] {
+  --action-bg: var(--surface);
+  --action-ink: var(--ink);
+  --action-border: var(--line);
+}
+.concept-orbit .orbit-action[data-palette="orbit"][data-variant="ghost"] {
+  --action-bg: transparent;
+  --action-ink: var(--ink);
+}
+.concept-orbit .orbit-action[data-palette="orbit"]:is([data-variant="ghost"], [data-variant="outline"])[data-tone="brand"] {
+  --action-ink: var(--accent);
+}
+.concept-orbit .orbit-action[data-palette="orbit"]:is([data-variant="ghost"], [data-variant="outline"])[data-tone="danger"] {
+  --action-ink: var(--orbit-action-danger);
+}
+.concept-orbit .orbit-action[data-palette="orbit"][data-size="sm"] {
+  min-height: var(--orbit-action-compact-height);
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.concept-orbit .orbit-action[data-palette="orbit"][data-size="icon"] {
+  width: var(--orbit-action-height);
+  min-width: var(--orbit-action-height);
+  height: var(--orbit-action-height);
+  padding: 0;
+}
+.concept-orbit .orbit-action-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: inherit;
+  min-width: 0;
+}
+.concept-orbit .orbit-action[data-palette="orbit"] svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+/* Top-corner close controls retain their positioning; framed workflow headers use grid flow. */
+.concept-orbit .orbit-action.p-dialog-close[data-palette="orbit"] { position: absolute; }
+.p-card-modal.workflow-dialog .orbit-action.p-dialog-close[data-palette="orbit"] { position: static; inset: auto; }
+.concept-orbit .orbit-action[data-palette="orbit"] .orbit-action-spinner {
+  position: absolute;
+  left: calc(50% - 9px);
+  top: calc(50% - 9px);
+  width: 18px;
+  height: 18px;
+  animation: orbit-action-spin 850ms linear infinite;
+}
+@media (hover: hover) and (pointer: fine) {
+  .concept-orbit .orbit-action[data-palette="orbit"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--action-bg) 88%, var(--action-state-shade) 12%);
+    border-color: color-mix(in srgb, var(--action-ink) 40%, var(--action-border));
+  }
+  .concept-orbit .orbit-action[data-palette="orbit"][data-variant="ghost"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--orbit-action-hover);
+    border-color: transparent;
+  }
+}
+.concept-orbit .orbit-action[data-palette="orbit"]:active:not(:disabled):not([aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--action-bg) 78%, var(--action-state-shade) 22%);
+}
+.concept-orbit .orbit-action[data-palette="orbit"][data-variant="ghost"]:active:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--orbit-action-pressed);
+}
+.concept-orbit .orbit-action[data-palette="orbit"]:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+.concept-orbit .orbit-action[data-palette="orbit"]:is(:disabled, [aria-disabled="true"]) {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+  translate: none;
+  scale: 1;
+}
+.concept-orbit .orbit-action[data-palette="orbit"][aria-busy="true"] {
+  opacity: .85;
+  cursor: progress;
+}
+/* Explicit editor tool controls retain pressed state and native editing behavior. */
+.concept-orbit .orbit-tool {
+  min-width: 36px;
+  min-height: var(--orbit-action-compact-height);
+  padding: 6px 9px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+  transform: none;
+  translate: none;
+  scale: 1;
+}
+.concept-orbit .orbit-tool[aria-pressed="true"] {
+  background: var(--soft);
+  border-color: var(--ink);
+  font-weight: 650;
+}
+.concept-orbit .orbit-tool:focus-visible:not(:disabled) {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+.concept-orbit .orbit-tool:is(:hover, :active) {
+  background: var(--orbit-action-hover);
+}
+.concept-orbit .orbit-tool:disabled { opacity: .45; cursor: not-allowed; }
+/* Variables preserve independent transforms when Lightning CSS targets older Safari. */
+.concept-orbit :is(.orbit-action[data-palette="orbit"], .orbit-tool):is(:hover, :active):not(:disabled):not([aria-disabled="true"]) {
+  transform: none;
+  translate: var(--orbit-action-reset-translate, none);
+  scale: var(--orbit-action-reset-scale, 1);
+}
+.concept-orbit :is(.orbit-action[data-palette="orbit"], .orbit-tool):is(:hover, :active):not(:disabled):not([aria-disabled="true"]) svg { transform: none; translate: var(--orbit-action-reset-translate, none); }
+@keyframes orbit-action-spin { to { rotate: 360deg; } }
+@media (max-width: 700px), (pointer: coarse) {
+  .concept-orbit {
+    --orbit-action-height: 44px;
+    --orbit-action-compact-height: 44px;
+  }
+  .concept-orbit .orbit-tool { min-width: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .concept-orbit .orbit-action[data-palette="orbit"],
+  .concept-orbit .orbit-tool { transition: none; }
+  .concept-orbit .orbit-action-spinner { animation: none !important; }
+}
+.concept-orbit.p-motion-off .orbit-action-spinner { animation: none; }

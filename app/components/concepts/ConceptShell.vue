@@ -32,6 +32,9 @@ import "~/assets/css/workflow.css";
 import "~/assets/css/strategy.css";
 import "~/assets/css/inner-background.css";
 import "~/assets/css/filter-workbench.css";
+import "~/assets/css/workbench-visual.css";
+import "~/assets/css/mobile-workbench.css";
+import "~/assets/css/orbit-actions.css";
 import OrbitBackground from "./OrbitBackground.vue";
 import ConceptPages from "./ConceptPages.vue";
 import DeckLoomV3 from "./deck/DeckLoomV3.vue";
@@ -41,6 +44,15 @@ import type { LoomCard } from "#shared/domain/deck-loom";
 import { demoCards } from "~/composables/useShowcase";
 import "~/assets/css/deck-loom.css";
 const props = defineProps<{ variant: string; section: string }>();
+provide('concept-button-variant', computed(() => props.variant));
+// Native navigation and Reka close controls keep their own semantics and focus lifecycle.
+const iconActionAttrs = computed(() => props.variant === 'orbit' ? {
+  class: 'orbit-action', 'data-palette': 'orbit', 'data-variant': 'ghost',
+  'data-tone': 'neutral', 'data-size': 'icon', type: 'button' as const,
+} : {});
+const lightActionAttrs = computed(() => props.variant === 'orbit' ? {
+  ...iconActionAttrs.value, 'data-size': 'sm',
+} : {});
 const route = useRoute();
 useInteractionFeedback();
 const {
@@ -84,6 +96,49 @@ function saveDeck() {
 const menu = ref(false);
 const hydrated = ref(false);
 const narrowScreen = ref(false);
+const pageFlow = ref<HTMLElement>();
+const shellRoot = ref<HTMLElement>();
+const catalogScroll = useState<Record<string, number>>("orbit-catalog-scroll", () => ({}));
+const deckFooterHeight = ref(160);
+let footerObserver: ResizeObserver | undefined;
+function rememberCatalogScroll() {
+  if (props.variant === "orbit" && props.section === "cards" && narrowScreen.value && pageFlow.value)
+    catalogScroll.value[route.fullPath] = pageFlow.value.scrollTop;
+}
+async function restoreCatalogScroll() {
+  await nextTick();
+  if (props.variant === "orbit" && props.section === "cards" && narrowScreen.value && pageFlow.value)
+    pageFlow.value.scrollTop = catalogScroll.value[route.fullPath] || 0;
+}
+watch(() => route.fullPath, restoreCatalogScroll);
+watch([panel, narrowScreen], async () => {
+  footerObserver?.disconnect();
+  await nextTick();
+  const footer = shellRoot.value?.querySelector<HTMLElement>(".v3-footer");
+  if (!footer) return;
+  const measure = () => { deckFooterHeight.value = Math.ceil(footer.getBoundingClientRect().height); };
+  measure();
+  footerObserver = new ResizeObserver(measure);
+  footerObserver.observe(footer);
+});
+const toastParts = computed(() => toast.value.split(/(LO-\d{4}(?:-[A-Za-z0-9]+)*)/gi));
+const toastPosition = ref<Record<string, string>>({});
+watch([toast, panel, narrowScreen, deckFooterHeight], async () => {
+  toastPosition.value = {};
+  await nextTick();
+  if (!toast.value || panel.value !== "deck" || !narrowScreen.value || !lastEdit.value) return;
+  const root = shellRoot.value;
+  const message = root?.querySelector<HTMLElement>(".p-toast-message");
+  const quantity = root?.querySelector<HTMLElement>(`.v3-tile[data-code="${CSS.escape(lastEdit.value.code)}"] .v3-tile-quantity`);
+  const toolbar = root?.querySelector<HTMLElement>(".v3-toolbar");
+  const body = root?.querySelector<HTMLElement>(".v3-body");
+  if (!message || !quantity || !body) return;
+  const box = message.getBoundingClientRect(), controls = quantity.getBoundingClientRect();
+  if (box.top >= controls.bottom + 8 || box.bottom <= controls.top - 8) return;
+  const top = Math.max(body.getBoundingClientRect().top + 8, (toolbar?.getBoundingClientRect().bottom || 0) + 8);
+  if (top + box.height <= controls.top - 8)
+    toastPosition.value = { top: `${top}px`, bottom: "auto" };
+});
 const mobileDeckOpen = computed(
   () =>
     props.variant === "orbit" &&
@@ -104,9 +159,11 @@ function measureScreen() {
 }
 onMounted(() => {
   measureScreen();
+  void restoreCatalogScroll();
   window.addEventListener("resize", measureScreen);
 });
 onBeforeUnmount(() => {
+  footerObserver?.disconnect();
   window.removeEventListener("resize", measureScreen);
   if (mobileDeckOpen.value) document.body.style.overflow = bodyOverflow;
 });
@@ -239,7 +296,9 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
 
 <template>
   <div
+    ref="shellRoot"
     class="concept"
+    :style="{ '--mobile-deck-footer-height': deckFooterHeight + 'px' }"
     :data-ready="hydrated"
     :class="[
       `concept-${variant}`,
@@ -281,6 +340,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
         >
           <span class="p-toggle"><i /></span><span>组卡模式</span></button
         ><button
+          v-bind="iconActionAttrs"
           class="p-icon"
           :aria-label="theme === 'dark' ? '切换日间模式' : '切换夜晚模式'"
           @click="theme = theme === 'dark' ? 'light' : 'dark'"
@@ -290,6 +350,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
             :size="19"
           /></button
         ><button
+          v-bind="iconActionAttrs"
           class="p-icon p-more"
           aria-label="更多导航"
           :aria-expanded="menu"
@@ -337,7 +398,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
         </nav></Transition
       >
     </header>
-    <div class="p-page-flow" :inert="mobileDeckOpen">
+    <div ref="pageFlow" class="p-page-flow" :inert="mobileDeckOpen" @scroll.passive="rememberCatalogScroll">
       <main id="concept-content" class="p-main">
         <PersonalCloudStatus class="personal-sync-status" />
         <Transition name="a-page" mode="out-in"
@@ -351,17 +412,18 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
             target="_blank"
             rel="noopener noreferrer"
             >项目地址 <ArrowUpRight :size="13" /></a
-          ><span>致谢 · 待补充</span>
+          ><a href="mailto:lyceetoolbox@163.com">反馈邮箱：lyceetoolbox@163.com</a>
         </div>
         <p>
           同人非官方自建站。卡牌版权归 Lycee
           官方及相应权利人所有，数据为自收集，未经允许不可商用。
         </p>
         <div class="p-footer-bottom">
-          <span>Lycee Overture 卡查工具箱</span><span>ICP备案 · 待审核</span>
+          <span>站名占位符·LO卡查工具箱</span><a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank" rel="noopener noreferrer">浙ICP备2026085247号</a>
         </div>
       </footer>
     </div>
+    <nav v-if="section === 'cards' || mode" class="p-workbench-actions" aria-label="卡查操作" :inert="mobileDeckOpen">
     <button
       v-if="section === 'cards'"
       class="p-fab p-filter-fab"
@@ -380,6 +442,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
     >
       <Layers :size="21" /><span>{{ total }}<small>/60</small></span>
     </button>
+    </nav>
     <Transition name="a-drawer"
       ><aside
         v-if="mode && panel === 'deck'"
@@ -395,6 +458,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
         <div class="p-drawer-heading">
           <span>当前构筑</span
           ><button
+            v-bind="iconActionAttrs"
             class="p-icon"
             aria-label="关闭卡组面板"
             @click="panel = 'none'"
@@ -499,9 +563,8 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
       >
     </div>
     <Transition name="p-toast"
-      ><div v-if="toast" class="p-toast-message" role="status">
-        {{ toast
-        }}<button
+      ><div v-if="toast" class="p-toast-message" role="status" :style="toastPosition">
+        <span class="p-toast-copy"><template v-for="(part, index) in toastParts" :key="index"><span :class="{ 'p-toast-code': /^LO-\d{4}(?:-[A-Za-z0-9]+)*$/i.test(part) }">{{ part }}</span></template></span><button
           v-if="
             lastEdit &&
             toast.includes(lastEdit.code) &&
@@ -509,17 +572,18 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
             variant === 'orbit'
           "
           class="v3-toast-locate"
+          v-bind="lightActionAttrs"
           @click="locateCard(lastEdit.code)"
         >
           定位卡牌</button
-        ><button class="p-icon" aria-label="关闭提示" @click="toast = ''">
+        ><button v-bind="iconActionAttrs" class="p-icon" aria-label="关闭提示" @click="toast = ''">
           <X :size="16" />
         </button></div
     ></Transition>
     <DialogRoot v-model:open="modal"
       ><DialogPortal
         ><DialogOverlay class="p-dialog-overlay" /><DialogContent
-          class="p-card-modal"
+          class="p-card-modal p-card-detail"
           :class="[
             `concept-${variant}`,
             { 'a-light': theme === 'light', 'p-motion-off': !motion },
@@ -528,10 +592,9 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
           ><DialogTitle class="sr-only">{{ selected?.name }}</DialogTitle
           ><DialogDescription class="sr-only"
             >完整卡牌详情，数量操作同步当前本地卡组。</DialogDescription
-          ><DialogClose class="p-icon p-dialog-close" aria-label="关闭详情"
-            ><X /></DialogClose
-          ><template v-if="selected"
-            ><img
+          ><div class="p-detail-close-row"><span>卡牌详情</span><DialogClose v-bind="iconActionAttrs" class="p-icon" aria-label="关闭详情"><X /></DialogClose></div>
+          <div v-if="selected" class="p-detail-body">
+            <img
               :src="selected.img"
               :alt="selected.name"
               class="p-detail-art"
@@ -605,8 +668,8 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
                     : "开启组卡模式，开始你的构筑。"
                 }}
               </p>
-            </div></template
-          ></DialogContent
+            </div>
+          </div></DialogContent
         ></DialogPortal
       ></DialogRoot
     >
@@ -624,7 +687,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
           }}</DialogTitle
           ><DialogDescription class="sr-only"
             >账号管理、个人数据同步和站点公告。</DialogDescription
-          ><DialogClose class="p-icon p-dialog-close" aria-label="关闭窗口"
+          ><DialogClose v-bind="iconActionAttrs" class="p-icon p-dialog-close" aria-label="关闭窗口"
             ><X /></DialogClose
           ><ConceptPages
             v-if="utility"

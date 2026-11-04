@@ -1,11 +1,12 @@
 import type { Card } from "#shared/domain/catalog";
-import { categoryLabels } from "#shared/domain/catalog";
 import {
   printLayout,
   printCards,
+  defaultPrintSettings,
   type PrintSettings,
 } from "#shared/domain/exports";
 import { cardTextureSource } from "#shared/domain/card-artwork";
+import { paginateDeckList, deckListLayout } from '#shared/domain/deck-list';
 export interface RenderedPages {
   images: string[];
   width: number;
@@ -66,21 +67,40 @@ export async function renderPrint(
     }),
   );
   if (signal?.aborted) throw new Error("cancelled");
-  const s = list
-    ? {
-        pageWidth: 210,
-        pageHeight: 297,
-        cardWidth: 63,
-        cardHeight: 88,
-        margin: 7,
-        gap: 1,
-      }
-    : settings;
-  const layout = printLayout(s),
-    source = list ? unique : cards,
-    perPage = list ? 12 : layout.perPage,
-    result: string[] = [];
+  const s = list ? defaultPrintSettings : settings;
+  const layout = printLayout(s), source = cards, perPage = layout.perPage, result: string[] = [];
   const scale = 200 / 25.4;
+  if (list) {
+    await document.fonts.ready;
+    const measuring = document.createElement('canvas').getContext('2d')!;
+    measuring.font = '3.2px "Microsoft YaHei", sans-serif';
+    const sheets = paginateDeckList(unique, q, text => measuring.measureText(text).width);
+    for (const [page, rows] of sheets.entries()) {
+      if (signal?.aborted) throw new Error('cancelled');
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(210 * scale); canvas.height = Math.round(297 * scale);
+      const ctx = canvas.getContext('2d')!;
+      ctx.scale(scale, scale); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 210, 297);
+      ctx.fillStyle = '#17241d'; ctx.font = 'bold 6px "Microsoft YaHei", sans-serif';
+      ctx.fillText(name || '未命名卡组', 10, 14, 190);
+      ctx.font = '3.2px "Microsoft YaHei", sans-serif';
+      ctx.fillText(`LYCEE OVERTURE · ${cards.length} 张 · ${unique.length} 种 · ${page + 1} / ${sheets.length}`, 10, 22);
+      for (const row of rows) {
+        const image = images.get(row.card.code);
+        if (image) {
+          const fit = Math.min(18 / image.width, 25.2 / image.height);
+          ctx.drawImage(image, 10, row.y, image.width * fit, image.height * fit);
+        }
+        ctx.fillStyle = '#17241d';
+        row.lines.forEach((line, index) => ctx.fillText(line, 32, row.y + 4 + index * deckListLayout.lineHeight));
+        if (row.continued) { ctx.font = '2.8px sans-serif'; ctx.fillText(`${row.card.code}（续）`, 10, row.y + 28, 20); ctx.font = '3.2px "Microsoft YaHei", sans-serif'; }
+        ctx.strokeStyle = '#ddd'; ctx.beginPath(); ctx.moveTo(10, row.y + row.height - 1); ctx.lineTo(200, row.y + row.height - 1); ctx.stroke();
+      }
+      result.push(canvas.toDataURL('image/png')); canvas.width = canvas.height = 1;
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    return { images: result, width: 210, height: 297, missing };
+  }
   for (let start = 0; start < Math.max(1, source.length); start += perPage) {
     if (signal?.aborted) throw new Error("cancelled");
     const canvas = document.createElement("canvas");
@@ -91,25 +111,11 @@ export async function renderPrint(
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, s.pageWidth, s.pageHeight);
     ctx.fillStyle = "#17241d";
-    if (list) {
-      ctx.font = "bold 6px sans-serif";
-      ctx.fillText(name || "未命名卡组", 10, 14, 190);
-      ctx.font = "3.2px sans-serif";
-      ctx.fillText(
-        `LYCEE OVERTURE · ${cards.length} 张 · ${unique.length} 种 · ${Math.floor(start / perPage) + 1} / ${Math.max(1, Math.ceil(source.length / perPage))}`,
-        10,
-        22,
-      );
-    }
     source.slice(start, start + perPage).forEach((c, i) => {
-      const x = list
-          ? 10
-          : layout.x + (i % layout.columns) * (s.cardWidth + s.gap),
-        y = list
-          ? 30 + i * 21
-          : layout.y + Math.floor(i / layout.columns) * (s.cardHeight + s.gap),
-        w = list ? 13 : s.cardWidth,
-        h = list ? 18.16 : s.cardHeight;
+      const x = layout.x + (i % layout.columns) * (s.cardWidth + s.gap),
+        y = layout.y + Math.floor(i / layout.columns) * (s.cardHeight + s.gap),
+        w = s.cardWidth,
+        h = s.cardHeight;
       const image = images.get(c.code);
       if (image) {
         const fit = Math.min(w / image.width, h / image.height);
@@ -127,24 +133,7 @@ export async function renderPrint(
         ctx.font = "2.8px sans-serif";
         ctx.fillText(c.code, x + 1, y + h / 2, w - 2);
       }
-      if (list) {
-        ctx.fillStyle = "#17241d";
-        ctx.font = "bold 3.5px sans-serif";
-        ctx.fillText(`${c.code}  × ${q[c.code]}    ${c.name}`, 28, y + 5, 170);
-        ctx.font = "3px sans-serif";
-        ctx.fillText(
-          `${categoryLabels[c.category] || c.category} · ${c.attribute} · 费用 ${c.cost || "—"} · EX ${c.ex ?? "—"}`,
-          28,
-          y + 11,
-          170,
-        );
-        ctx.fillText(`${c.version} · ${c.rarity}`, 28, y + 16, 170);
-        ctx.strokeStyle = "#ddd";
-        ctx.beginPath();
-        ctx.moveTo(10, y + 20);
-        ctx.lineTo(200, y + 20);
-        ctx.stroke();
-      }
+
     });
     result.push(canvas.toDataURL("image/png"));
     canvas.width = canvas.height = 1;

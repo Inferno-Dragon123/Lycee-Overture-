@@ -1,0 +1,289 @@
+/* Functional Orbit surfaces. The approved homepage and user-tuned orbit.css stay separate. */
+.concept-orbit.a-inner,
+.p-card-modal.concept-orbit {
+  --workbench-label-size: 14px;
+  --workbench-meta-size: 12px;
+  --workbench-control-height: 40px;
+  --workbench-control-radius: 9px;
+  --workbench-heading-size: 32px;
+  --workbench-control-surface: var(--surface);
+}
+.concept-orbit.a-inner .p-main {
+  caret-color: var(--ink);
+}
+.concept-orbit.a-inner .p-main ::selection,
+.p-card-modal.concept-orbit ::selection {
+  background: color-mix(in srgb, var(--accent) 30%, var(--surface));
+  color: var(--ink);
+}
+.concept-orbit.a-inner :is(.p-catalog, .p-inner-page) {
+  padding-top: 108px;
+}
+.concept-orbit.a-inner :is(.p-inner-heading, .p-catalog-heading) {
+  margin-bottom: 16px;
+}
+.concept-orbit.a-inner :is(.p-inner-heading, .p-catalog-heading) h1 {
+  font-size: var(--workbench-heading-size);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+}
+.concept-orbit.a-inner .p-main .p-button,
+.p-card-modal.concept-orbit .p-button {
+  min-height: var(--workbench-control-height);
+  padding: 9px 16px;
+  gap: 8px;
+  border-radius: var(--workbench-control-radius);
+  font-size: var(--workbench-label-size);
+  font-weight: 550;
+  line-height: 1.5;
+}
+.concept-orbit.a-inner .p-main .p-button-quiet,
+.p-card-modal.concept-orbit .p-button-quiet {
+  background: transparent;
+  color: var(--ink) !important;
+  border: 1px solid var(--line);
+}
+.concept-orbit.a-inner .p-main .p-text-link {
+  font-size: var(--workbench-label-size);
+  text-underline-offset: 4px;
+}
+.concept-orbit.a-inner .workbench-choice,
+.p-card-modal.concept-orbit .workbench-choice {
+  font-size: var(--workbench-label-size);
+}
+.concept-orbit.a-inner .workbench-choice .choice-button,
+.p-card-modal.concept-orbit .workbench-choice .choice-button {
+  min-height: var(--workbench-control-height);
+  padding: 8px 12px;
+  gap: 10px;
+  border-radius: var(--workbench-control-radius);
+  background: var(--workbench-control-surface);
+  font-size: inherit;
+  font-weight: 450;
+  line-height: 1.5;
+}
+.concept-orbit.a-inner .workbench-choice .choice-options,
+.p-card-modal.concept-orbit .workbench-choice .choice-options {
+  border: 0;
+  border-radius: 12px;
+  padding: 6px;
+  background: var(--surface);
+  box-shadow: 0 10px 30px #0003;
+}
+.concept-orbit.a-inner.a-light .workbench-choice .choice-options,
+.p-card-modal.concept-orbit.a-light .workbench-choice .choice-options {
+  box-shadow: 0 10px 30px #1d30281f;
+}
+.concept-orbit.a-inner .workbench-choice .choice-option,
+.p-card-modal.concept-orbit .workbench-choice .choice-option {
+  min-height: var(--workbench-control-height);
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: inherit;
+}
+.concept-orbit.a-inner .workbench-choice .choice-option.is-active,
+.p-card-modal.concept-orbit .workbench-choice .choice-option.is-active {
+  color: var(--ink);
+  background: var(--soft);
+}
+.concept-orbit.a-inner .workbench-choice .choice-option.is-selected,
+.p-card-modal.concept-orbit .workbench-choice .choice-option.is-selected {
+  font-weight: 600;
+}
+.concept-orbit.a-inner .workbench-choice .choice-option.is-selected > svg,
+.p-card-modal.concept-orbit .workbench-choice .choice-option.is-selected > svg {
+  color: var(--accent);
+}
+.concept-orbit.a-inner .p-catalog-search {
+  min-height: 50px;
+  padding: 4px 12px;
+  gap: 12px;
+  border-radius: var(--workbench-control-radius);
+  transition: border-color .18s, background-color .18s;
+}
+.concept-orbit.a-inner .p-catalog-search input {
+  min-height: 40px;
+  padding-block: 6px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.concept-orbit.a-inner .p-catalog-search > svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.concept-orbit.a-inner .p-catalog-search .p-icon {
+  width: 40px;
+  height: 40px;
+}
+.concept-orbit.a-inner .p-catalog-tabs {
+  min-height: 44px;
+  margin-top: 14px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.concept-orbit.a-inner .p-catalog-tabs > a {
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  min-height: 44px;
+  padding-bottom: 0;
+  font-size: 14px;
+}
+.concept-orbit.a-inner .p-catalog-tabs > .p-catalog-count {
+  margin-left: auto;
+  font-size: var(--workbench-meta-size);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+.concept-orbit.a-inner .p-catalog-sort {
+  flex: 0 0 auto;
+  min-width: 118px;
+  margin-block: 3px;
+  font-size: 13px;
+}
+.concept-orbit.a-inner .p-catalog-body {
+  margin-top: 16px;
+}
+.concept-orbit.a-inner .p-catalog-result-heading {
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.concept-orbit.a-inner .p-catalog-result-heading h2 {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.concept-orbit.a-inner .p-catalog-result-heading > span {
+  flex-shrink: 0;
+  font-size: var(--workbench-meta-size);
+  font-variant-numeric: tabular-nums;
+}
+/* Keep the result heading for assistive navigation without repeating the full-card count. */
+.concept-orbit.a-inner .p-catalog-result-heading.is-default {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.concept-orbit.a-inner .p-demo-card-meta {
+  font-size: 12px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+.concept-orbit.a-inner .p-demo-card-meta > span {
+  white-space: nowrap;
+}
+.concept-orbit.a-inner .p-demo-card h3 {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+.concept-orbit.a-inner :is(.f-help, .p-muted) {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.concept-orbit.a-inner :is(.reference-results small, .reference-deck-result small) {
+  font-size: var(--workbench-meta-size);
+  line-height: 1.6;
+}
+.concept-orbit.a-inner .reference-card-code {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.concept-orbit.a-inner :is(.reference-actions button, .effect-copy summary) {
+  min-height: 36px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.concept-orbit.a-inner .f-segments > button,
+.concept-orbit.a-inner .f-specials > button {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.concept-orbit.a-inner .f-segments > button[aria-pressed="true"],
+.concept-orbit.a-inner .f-specials > button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border-color: var(--accent);
+  color: var(--ink);
+}
+@media (max-width: 700px) {
+  .concept-orbit.a-inner,
+  .p-card-modal.concept-orbit {
+    --workbench-control-height: 44px;
+    --workbench-heading-size: 28px;
+  }
+  .concept-orbit.a-inner :is(.p-catalog, .p-inner-page) {
+    padding-top: 92px;
+    padding-inline: 18px;
+  }
+  .concept-orbit.a-inner :is(.p-inner-heading, .p-catalog-heading) {
+    margin-bottom: 14px;
+  }
+  .concept-orbit.a-inner .p-catalog-search {
+    padding: 2px 10px;
+    gap: 8px;
+  }
+  .concept-orbit.a-inner .p-catalog-search input {
+    font-size: 14px;
+  }
+  .concept-orbit.a-inner .p-catalog-search .p-icon {
+    width: 44px;
+    height: 44px;
+  }
+  .concept-orbit.a-inner .p-catalog-tabs {
+    margin-top: 12px;
+    gap: 10px;
+  }
+  .concept-orbit.a-inner .p-catalog-tabs > a {
+    font-size: 12px;
+  }
+  .concept-orbit.a-inner .p-catalog-sort {
+    min-width: 104px;
+    font-size: 12px;
+  }
+  .concept-orbit.a-inner .p-catalog-sort .choice-button {
+    padding-inline: 8px;
+    gap: 6px;
+  }
+  .concept-orbit.a-inner .p-catalog-count-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .concept-orbit.a-inner .p-catalog-body {
+    margin-top: 12px;
+  }
+  .concept-orbit.a-inner .p-demo-card h3 {
+    font-size: 13px;
+  }
+  .concept-orbit.a-inner :is(.reference-actions button, .effect-copy summary) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Page titles share the action row after removing the redundant slogans. */
+.concept-orbit .deck-library .p-collection-title h1 { font-size: var(--workbench-heading-size); font-weight: 650; line-height: 1.3; letter-spacing: -0.025em; }
+.concept-orbit .deck-detail .v3-attributes { flex-wrap: wrap; gap: 6px; }
+.concept-orbit .deck-detail .v3-attributes button { flex: none; min-width: 40px; min-height: 40px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--soft); color: var(--ink); }
+.concept-orbit .deck-detail .v3-attributes button[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent); font-weight: 700; }
+.concept-orbit .deck-detail .v3-attributes button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.reading-source-download { grid-column: 1 / -1; width: fit-content; text-decoration: underline; text-underline-offset: 4px; padding-block: 6px; }
+@media (max-width: 700px) { .concept-orbit .deck-detail .v3-attributes button { min-width: 44px; min-height: 44px; } .concept-orbit .deck-library .p-collection-title h1 { font-size: 26px; } }
+
+/* With the content wash removed, small catalog labels use the full text color. */
+.concept-orbit.a-inner :is(.p-catalog-tabs > a:not(.active), .p-catalog-count, .p-demo-card-meta > span) { color: var(--ink); }

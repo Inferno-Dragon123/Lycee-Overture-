@@ -6,7 +6,7 @@ import { validateOrbitQuantities } from "#shared/domain/deck-loom-v3";
 export const concepts = [
   {
     id: "orbit",
-    name: "流光剧场",
+    name: "站名占位符·LO卡查工具箱",
     subtitle: "沉浸、光轨、立体卡片",
     letter: "A",
   },

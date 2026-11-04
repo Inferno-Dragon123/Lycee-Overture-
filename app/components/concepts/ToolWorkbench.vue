@@ -18,6 +18,9 @@ import {
 import ChoiceListbox from "./ChoiceListbox.vue";
 import WorkflowDialog from "./WorkflowDialog.vue";
 import CardSearch from "./CardSearch.vue";
+import OrbitButton from "./OrbitButton.vue";
+import { Trash2 } from "lucide-vue-next";
+import { officialDeckUrl } from '#shared/domain/official-deck';
 const state = useShowcase(),
   library = usePracticeDecks(),
   route = useRoute(),
@@ -38,11 +41,27 @@ const source = ref(transfer.value ? "imported" : ""),
   pages = ref<RenderedPages | null>(null),
   previewPage = ref(0),
   custom = ref<Record<string, number>>({});
+const uploadingBack = ref(false), deletingBack = ref(""), downloading = ref(false);
+const officialUrl = ref(''), officialBusy = ref(false), officialError = ref('');
+const officialDeck = ref<{name: string; quantities: Record<string, number>} | null>(null);
+async function importOfficial() {
+  if (officialBusy.value) return;
+  officialError.value = '';
+  officialBusy.value = true;
+  try {
+    const url = officialDeckUrl(officialUrl.value);
+    const result = await $fetch<{name: string; quantities: Record<string, number>}>('/api/workflow/official-deck', { method: 'POST', body: { url } });
+    officialDeck.value = result;
+    if (source.value === 'official') name.value = result.name;
+  } catch (e) { officialError.value = (e as {data?: {message?: string}}).data?.message || (e as Error).message || '官网卡组导入失败，请重试。'; }
+  finally { officialBusy.value = false; }
+}
 const settings = ref<PrintSettings>({ ...defaultPrintSettings });
 const backs = ref<{ id: string; url: string }[]>([]);
 const sourceOptions = computed(() => [
   { value: "", label: "请选择卡组" },
   { value: "current", label: `当前构筑 · ${state.total.value} 张` },
+  { value: 'official', label: '官网卡组链接导入' },
   ...(transfer.value
     ? [{ value: "imported", label: `已导入 · ${transfer.value.name}` }]
     : []),
@@ -52,7 +71,7 @@ const sourceOptions = computed(() => [
     : []),
 ]);
 const quantities = computed(() =>
-  source.value === "custom"
+  source.value === 'official' ? officialDeck.value?.quantities || {} : source.value === "custom"
     ? custom.value
     : source.value === "current"
       ? state.quantities.value
@@ -132,7 +151,7 @@ watch(
 );
 watch(source, (value) => {
   const deck =
-    value === "imported"
+    value === 'official' ? officialDeck.value : value === "imported"
       ? transfer.value
       : library.decks.value.find((d) => d.id === value);
   if (deck) name.value = deck.name;
@@ -174,6 +193,8 @@ async function upload(event: Event) {
   const input = event.target as HTMLInputElement,
     file = input.files?.[0];
   if (!file) return;
+  if (uploadingBack.value || deletingBack.value || !account.user.value || backs.value.length >= 3) { input.value = ""; return; }
+  uploadingBack.value = true;
   error.value = "";
   try {
     const form = new FormData();
@@ -185,9 +206,13 @@ async function upload(event: Event) {
       (e as { data?: { message: string } }).data?.message || "卡背上传失败";
   } finally {
     input.value = "";
+    uploadingBack.value = false;
   }
 }
 async function removeBack(id: string) {
+  if (uploadingBack.value || deletingBack.value) return;
+  deletingBack.value = id;
+  error.value = "";
   try {
     await $fetch("/api/workflow/cardbacks", {
       method: "DELETE",
@@ -198,9 +223,13 @@ async function removeBack(id: string) {
     await loadBacks();
   } catch {
     error.value = "删除卡背失败";
+  } finally {
+    deletingBack.value = "";
   }
 }
 async function download() {
+  if (busy.value || downloading.value || !count.value) return;
+  downloading.value = true;
   try {
     if (active.value === "tts") {
       const data = JSON.parse(json.value);
@@ -214,6 +243,8 @@ async function download() {
       await downloadPdf(name.value, pages.value);
   } catch (e) {
     error.value = (e as Error).message;
+  } finally {
+    downloading.value = false;
   }
 }
 const dimensions: [keyof PrintSettings, string][] = [
@@ -236,6 +267,8 @@ const dimensions: [keyof PrintSettings, string][] = [
         ]"
         :key="t.id"
         :class="{ active: active === t.id }"
+        type="button"
+        :aria-pressed="active === t.id"
         @click="active = t.id"
       >
         {{ t.label }}
@@ -257,15 +290,15 @@ const dimensions: [keyof PrintSettings, string][] = [
             :alt="active === 'list' ? '生成的卡表预览' : '打印卡图排版预览'"
           />
           <nav v-if="pages" class="p-pagination">
-            <button :disabled="previewPage === 0" @click="previewPage--">
-              上一张预览</button
+            <OrbitButton variant="ghost" tone="neutral" size="sm" :disabled="previewPage === 0" @click="previewPage--">
+              上一张预览</OrbitButton
             ><span>{{ previewPage + 1 }} / {{ pages.images.length }}</span
-            ><button
+            ><OrbitButton variant="ghost" tone="neutral" size="sm"
               :disabled="previewPage >= pages.images.length - 1"
               @click="previewPage++"
             >
               下一张预览
-            </button>
+            </OrbitButton>
           </nav></template
         >
       </div>
@@ -274,7 +307,14 @@ const dimensions: [keyof PrintSettings, string][] = [
           v-model="source"
           label="卡组来源"
           :options="sourceOptions"
-        /><label>卡组名称<input v-model="name" maxlength="80" /></label>
+        />
+        <form v-if="source === 'official'" class="official-deck-import" @submit.prevent="importOfficial">
+          <label>官网卡组链接<input v-model="officialUrl" type="url" maxlength="2000" placeholder="https://lycee-tcg.com/d/?d=…" required :disabled="officialBusy" /></label>
+          <OrbitButton type="submit" variant="outline" tone="neutral" :busy="officialBusy">解析并导入官网卡组</OrbitButton>
+          <p v-if="officialError" role="alert">{{ officialError }}</p>
+          <p v-if="officialDeck" role="status">已导入：{{ officialDeck.name }} · {{ totalCards(officialDeck.quantities) }} 张</p>
+        </form>
+        <label>卡组名称<input v-model="name" maxlength="100" /></label>
         <p>{{ count }} 张</p>
         <template v-if="active === 'tts'"
           ><ChoiceListbox
@@ -291,7 +331,8 @@ const dimensions: [keyof PrintSettings, string][] = [
             >上传自定义卡背<input
               type="file"
               accept="image/png,image/jpeg,image/webp"
-              :disabled="!account.user.value || backs.length >= 3"
+              :disabled="!account.user.value || backs.length >= 3 || uploadingBack || !!deletingBack"
+              :aria-busy="uploadingBack || undefined"
               @change="upload"
           /></label>
           <p class="p-muted">
@@ -299,17 +340,18 @@ const dimensions: [keyof PrintSettings, string][] = [
               account.user.value ? "" : "请先在账号管理登录。"
             }}
           </p>
-          <button v-for="(b, i) in backs" :key="b.id" @click="removeBack(b.id)">
-            删除自定义卡背 {{ i + 1 }}
-          </button></template
+          <p v-if="uploadingBack" role="status">正在上传自定义卡背…</p>
+          <OrbitButton v-for="(b, i) in backs" :key="b.id" variant="ghost" tone="danger" :busy="deletingBack === b.id" :disabled="uploadingBack || !!deletingBack" @click="removeBack(b.id)">
+            <Trash2 aria-hidden="true" />删除自定义卡背 {{ i + 1 }}
+          </OrbitButton></template
         ><template v-if="active === 'images'"
-          ><button
+          ><OrbitButton
             v-if="source === 'custom'"
-            class="p-button"
+            variant="outline" tone="neutral"
             @click="picker = true"
           >
             选择打印卡牌
-          </button>
+          </OrbitButton>
           <div class="print-dimensions">
             <label v-for="[key, label] in dimensions" :key="key"
               >{{ label }}（mm）<input
@@ -320,9 +362,9 @@ const dimensions: [keyof PrintSettings, string][] = [
                 step="0.1"
             /></label>
           </div>
-          <button @click="settings = { ...defaultPrintSettings }">
+          <OrbitButton variant="ghost" tone="neutral" @click="settings = { ...defaultPrintSettings }">
             恢复 A4 默认参数
-          </button>
+          </OrbitButton>
           <p v-if="layout">
             每页 {{ layout.perPage }} 张 · {{ layout.columns }} 列 ×
             {{ layout.rows }} 行
@@ -333,18 +375,19 @@ const dimensions: [keyof PrintSettings, string][] = [
           </p></template
         >
         <p v-if="error" role="alert">{{ error }}</p>
-        <button v-if="error" @click="regenerate">重试生成</button
-        ><button
-          class="p-button"
+        <OrbitButton v-if="error" variant="ghost" tone="neutral" :busy="busy" @click="regenerate">重试生成</OrbitButton
+        ><OrbitButton
+          :busy="busy || downloading"
           :disabled="
             busy ||
+            officialBusy ||
             !count ||
             (active !== 'tts' && (!pages || !!pages.missing.length))
           "
           @click="download"
         >
           {{ active === "tts" ? "下载 TTS JSON" : "下载 PDF" }}
-        </button>
+        </OrbitButton>
       </div>
     </div>
     <WorkflowDialog
@@ -356,6 +399,7 @@ const dimensions: [keyof PrintSettings, string][] = [
         ><template #actions="{ card }"
           ><div class="p-stepper">
             <button
+              type="button"
               :aria-label="`减少打印 ${card.code}`"
               :disabled="!custom[card.code]"
               @click="choose(card, -1)"
@@ -363,6 +407,7 @@ const dimensions: [keyof PrintSettings, string][] = [
               −</button
             ><b>{{ custom[card.code] || 0 }}</b
             ><button
+              type="button"
               :aria-label="`增加打印 ${card.code}`"
               :disabled="
                 (custom[card.code] || 0) >= 60 || totalCards(custom) >= 200
@@ -373,9 +418,9 @@ const dimensions: [keyof PrintSettings, string][] = [
             </button>
           </div></template
         ></CardSearch
-      ><button class="p-button" @click="picker = false">
+      ><template #footer><OrbitButton variant="outline" tone="neutral" @click="picker = false">
         完成选择（{{ totalCards(custom) }} 张）
-      </button></WorkflowDialog
+      </OrbitButton></template></WorkflowDialog
     >
   </section>
 </template>
