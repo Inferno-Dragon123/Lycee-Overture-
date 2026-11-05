@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "repository": "https://github.com/Inferno-Dragon123/Lycee-Overture-.git",
-  "sourceCommit": "82734424b55a6d63463d15f745d3eff38b240c5e",
+  "sourceCommit": "e018b1febb5749817547985cfba3862108090ac1",
   "buildReady": true,
   "files": {
     ".env.example": "f1493d158f5351e866daa393e7f95998344b36bd408c5df79e9532685b1b7d97",
@@ -9,7 +9,8 @@
     ".gitignore": "0b0cae9b0ad0ddf129e9ebe937b46c2e20071d6503d41e2b864a273e519fb5be",
     ".node-version": "75daa0bc10dae1f22b2d13386b55b232adf16930d4325902f37b5033b3a7ca93",
     ".npmrc": "be85cc462e740587626bbcbb1c3ed1c40b26e62ec072e8cbd2768f23915c28e6",
-    "README.md": "d5329a1ed7bffcc5f1a6057466cfc2fafeff6c1d3f35dfc5a1cd27cb6ca2311a",
+    "CONTRIBUTING.md": "1ec17a25626d9a7538526ab35ff4720ff82b5774f3f0ede6e5899a88545444d5",
+    "README.md": "438c1499f0a5f7569c2fc0bea620799e9af74b2b40dd3ec3ad02fbec546e3573",
     "THIRD_PARTY_NOTICES.md": "a24100a6f925d7f6a71f080dd5150c5e9dfee27b50f4749e4494a63d021b4c5d",
     "app/app.vue": "7a2b6f88ed7cf94576054e398563fe134afd9becbd2bd35b0e26107c4a9cee09",
     "app/assets/css/concepts.css": "2d4fa9e8f60157975d4be26dfbfb1a89b4802e7f3b42902cf7f1e8006dc557af",
@@ -312,7 +313,7 @@
     "services/auth/package-lock.json": "0e2d9c549a8ceb79be242d16bddbb4cb474620a94c2cea52a4bfb541e918f7e4",
     "services/auth/package.json": "e016f5986721d74d5d5618b89c027bcbc7ee55a2d2714d77ba3d9e1313e1e114",
     "services/auth/server.mjs": "0dc3a69fd6bc3286df926d44fadcc6e5760c62573a94034df3ef8c88c6bdb128",
-    "shared/domain/announcements.ts": "48bf49cb00c83927ff6072145317adc6f5742d8d5832aa85ae9dcc2ea3aedfd9",
+    "shared/domain/announcements.ts": "f2855c0addd82bc9e6b30c9289b0457e6c932b0c176d7313385de15dbb6b2730",
     "shared/domain/basic-abilities.ts": "162dd9646da2b79bd4a66185150d30f0ce92f8b56dea543f3f4deecf9753691c",
     "shared/domain/card-artwork.ts": "8325d6531c0f06e825873df32068a8c55adb83648474370f4371a131cbb1a368",
     "shared/domain/catalog-series.ts": "b045521fbd21313b98a5397db458fe086fd8c1697697f0b476015afdbdbf67ea",
