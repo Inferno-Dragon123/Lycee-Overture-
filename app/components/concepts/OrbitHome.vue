@@ -29,6 +29,7 @@ import DemoBackpack from "./DemoBackpack.vue";
 import { demoCards, demoSeries, useShowcase } from "~/composables/useShowcase";
 import { useCollection } from "~/composables/useCollection";
 import { drawHand, expandDeck } from "~/demo/hand";
+import { navigationScrollTop } from "~/scene/render-budget";
 import type { ShowcaseCard } from "~/demo/collection";
 import { chinaDay, firstSeriesCards } from '#shared/domain/presentation';
 const { data: dailyWall, refresh: refreshWall } = await useFetch<{ day: string; codes: string[] }>('/api/catalog/daily-wall', { key: 'orbit-daily-wall' });
@@ -51,6 +52,7 @@ const {
 } = useCollection();
 const root = ref<HTMLElement>();
 useCardWave(root);
+useCardWallVisibility(root, computed(() => dailyWall.value?.codes.join('|') || ''));
 const picker = ref(false);
 const backpack = ref(false);
 const selection = ref<string[]>([]);
@@ -65,6 +67,10 @@ const handError = ref("");
 const result = ref<ShowcaseCard[]>([]);
 const pending = ref<ShowcaseCard[]>([]);
 const drawing = ref(false);
+const resultPresent = ref(false);
+watch(() => result.value.length > 0 && !drawing.value, shown => {
+  if (shown) resultPresent.value = true;
+});
 const drawSequence = ref(0);
 const other = ref("");
 const gallery = ref<HTMLElement>();
@@ -114,9 +120,14 @@ const reduce = () =>
   !motion.value ||
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 function start() {
-  document
-    .getElementById("quick-start")
-    ?.scrollIntoView({ behavior: reduce() ? "instant" : "smooth" });
+  const navigation = root.value?.querySelector<HTMLElement>('.a-shortcuts');
+  if (!navigation) return;
+  const rect = navigation.getBoundingClientRect();
+  const header = document.querySelector('.p-header')?.getBoundingClientRect();
+  window.scrollTo({
+    top: navigationScrollTop(window.scrollY, rect.top, rect.height, window.innerHeight, header?.bottom || 0),
+    behavior: reduce() ? 'instant' : 'smooth',
+  });
 }
 async function builder() {
   mode.value = true;
@@ -237,7 +248,7 @@ onBeforeUnmount(() => dispose());
             <img
               v-for="i in 8"
               :key="i"
-              :src="wallCode(row, i) ? `/api/cards/${wallCode(row, i)}/thumbnail` : undefined"
+              :data-wall-src="wallCode(row, i) ? `/api/cards/${wallCode(row, i)}/thumbnail` : undefined"
               :data-card-code="wallCode(row, i)"
               alt=""
               loading="lazy"
@@ -264,7 +275,7 @@ onBeforeUnmount(() => dispose());
         />
       </div>
     </section>
-    <section id="quick-start" class="a-quick" aria-label="快速开始">
+    <section id="quick-start" class="a-quick" :class="{ 'has-results': resultPresent }" aria-label="快速开始">
       <div class="a-draw">
         <h2>起手模拟</h2>
         <div class="a-draw-glow" aria-hidden="true" />
@@ -323,6 +334,27 @@ onBeforeUnmount(() => dispose());
           </p>
         </div>
       </div>
+      <Transition name="a-reveal" @after-leave="resultPresent = !!result.length && !drawing"
+        ><section
+          v-if="result.length && !drawing"
+          :key="drawSequence"
+          class="a-draw-results"
+          aria-label="本次抽取卡牌"
+        >
+          <h3>本次抽取</h3>
+          <div>
+            <button
+              v-for="(card, i) in result"
+              :key="drawSequence + '-' + i"
+              :style="{ '--i': i }"
+              data-wave-item
+              :aria-label="`起手卡牌 ${i + 1} ${card.code}`"
+              @click="selected = card"
+            >
+              <img class="a-wave-visual" :src="card.img" :alt="card.name" decoding="async" width="400" height="560" />
+            </button>
+          </div></section
+      ></Transition>
       <nav class="a-shortcuts" aria-label="快速导航">
         <NuxtLink to="/concepts/orbit/cards" class="a-shortcut a-find"
           ><Search /><span>卡牌查询</span><ArrowRight
@@ -358,27 +390,7 @@ onBeforeUnmount(() => dispose());
           >
         </div>
       </nav>
-      <Transition name="a-reveal"
-        ><section
-          v-if="result.length && !drawing"
-          :key="drawSequence"
-          class="a-draw-results"
-          aria-label="本次抽取卡牌"
-        >
-          <h3>本次抽取</h3>
-          <div>
-            <button
-              v-for="(card, i) in result"
-              :key="drawSequence + '-' + i"
-              :style="{ '--i': i }"
-              data-wave-item
-              :aria-label="`起手卡牌 ${i + 1} ${card.code}`"
-              @click="selected = card"
-            >
-              <img class="a-wave-visual" :src="card.img" :alt="card.name" />
-            </button>
-          </div></section
-      ></Transition>
+
     </section>
     <section class="a-series" aria-label="系列一览">
       <h2>系列一览</h2>

@@ -3,6 +3,7 @@ import type { ShowcaseCard } from "~/demo/collection";
 import type * as Three from "three";
 import { cardTextureSource } from "#shared/domain/card-artwork";
 import { createDrawSurface } from "~/scene/draw-surface";
+import { scenePixelRatio } from "~/scene/render-budget";
 import {
   DRAW_CONFIG as C,
   drawCameraDistance,
@@ -141,8 +142,10 @@ const fronts = Array.from(
   const canRun = () => !dead && !failed && visible && !document.hidden;
   let maxNdc = 0;
   const corner = new T.Vector3();
-  function render() {
-    if (!canRun()) return;
+  element.dataset.surface = fronts[0]!.type;
+  element.dataset.cardDepth = String(C.cardThickness);
+  // Measure settled bounds, rather than projecting 128 corners on every animation frame.
+  function measureBounds() {
     scene.updateMatrixWorld(true);
     camera.updateMatrixWorld(true);
     for (const mesh of [...deck, ...cards])
@@ -160,25 +163,44 @@ const fronts = Array.from(
               maxNdc = Math.max(maxNdc, Math.abs(corner.x), Math.abs(corner.y));
             }
     element.dataset.maxNdc = maxNdc.toFixed(3);
-    element.dataset.surface = fronts[0]!.type;
-    element.dataset.cardDepth = String(C.cardThickness);
+  }
+  function render(finalFrame = false) {
+    if (dead || failed || document.hidden || (!finalFrame && !canRun())) return;
     // Match the transparent varnish fade to the existing GSAP deck fade.
     surface.setDeckFinishOpacity(deckBack.opacity);
     renderer.render(scene, camera);
   }
+  let bufferWidth = 0, bufferHeight = 0, bufferRatio = 0;
+  let compact = false;
   function resize() {
     const { width, height } = element.getBoundingClientRect();
+    if (!width || !height) return;
+    compact = matchMedia('(max-width: 600px)').matches;
     camera.aspect = width / Math.max(height, 1);
-    renderer.setPixelRatio(
-      Math.min(devicePixelRatio, width < 450 ? 1.25 : 1.6),
-    );
-    renderer.setSize(Math.max(width, 1), Math.max(height, 1));
-    camera.position.z = drawCameraDistance(camera.aspect, currentCount);
+    const w = Math.round(width), h = Math.round(height), ratio = scenePixelRatio(w, h, devicePixelRatio);
+    if (w !== bufferWidth || h !== bufferHeight || ratio !== bufferRatio) {
+      renderer.setDrawingBufferSize(w, h, ratio);
+      bufferWidth = w; bufferHeight = h; bufferRatio = ratio;
+    }
+    camera.position.z = drawCameraDistance(camera.aspect, currentCount, compact);
     camera.updateProjectionMatrix();
+    if (state.value === 'ready' && props.sequence > 0) {
+      const targets = drawTargets(currentCount, compact);
+      cards.slice(0, currentCount).forEach((card, i) => {
+        const t = targets[i]!;
+        card.position.set(t.x, t.y, t.z);
+        card.rotation.set(t.rx, t.ry, t.rz);
+        card.scale.setScalar(t.scale);
+      });
+      measureBounds();
+    }
     render();
   }
   function activity() {
-    timeline?.paused(!canRun());
+    // Drawing is a one-shot action. Its completion must not depend on whether
+    // the canvas above the mobile controls is still inside the viewport.
+    // Offscreen frames skip WebGL; the hidden document still pauses the clock.
+    timeline?.paused(dead || failed || document.hidden);
     render();
   }
   const resizeObserver = new ResizeObserver(resize);
@@ -206,6 +228,7 @@ const fronts = Array.from(
               renderer.capabilities.getMaxAnisotropy(),
             );
             loaded.add(t);
+            t.userData.sourceUrl = url;
             return t;
           })
           .catch((error) => {
@@ -224,7 +247,16 @@ const fronts = Array.from(
   function finish() {
     if (dead || failed) return;
     state.value = "ready";
-    render();
+    // A phone can rotate during the timeline; settle against its current viewport.
+    resize();
+    measureBounds();
+    render(true);
+    const retained = new Set([backs.map, deckBack.map, ...fronts.map(m => m.map)]);
+    for (const t of loaded) if (!retained.has(t)) {
+      textures.delete(t.userData.sourceUrl);
+      loaded.delete(t);
+      t.dispose();
+    }
     complete();
     emit("ready");
   }
@@ -270,7 +302,9 @@ const fronts = Array.from(
       });
       const idle = props.sequence === 0,
         current = idle ? 0 : faces.length;
-      const target = drawTargets(current);
+      // Layout follows the actual canvas width, including changes after rotation.
+      compact = matchMedia('(max-width: 600px)').matches;
+      const target = drawTargets(current, compact);
       maxNdc = 0;
       currentCount = Math.max(1, current);
       const settle = () =>
@@ -418,6 +452,7 @@ onBeforeUnmount(() => {
     data-stage="draw"
     :data-state="state"
     :data-sequence="sequence"
+    :data-amount="amount"
     :data-card-codes="cards.map((c) => c.code).join(',')"
     role="img"
     aria-label="牌堆抽卡 3D 动画"

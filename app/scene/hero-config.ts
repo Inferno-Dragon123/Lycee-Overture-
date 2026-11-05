@@ -7,8 +7,6 @@ export const HERO_MOTION_CONFIG = {
   cardHeight: 2.65,
   cardThickness: 0.026,
   fov: 34,
-  desktopDpr: 1.6,
-  mobileDpr: 1.25,
   parallaxX: 0.055,
   parallaxY: 0.095,
   damping: 7,

@@ -2,6 +2,7 @@ import type * as Three from "three";
 import type { gsap as Gsap } from "gsap";
 import type { ShowcaseCard } from "../demo/collection";
 import { cardTextureSource } from "#shared/domain/card-artwork";
+import { scenePixelRatio } from "./render-budget";
 import {
   HERO_MOTION_CONFIG as C,
   heroLayout,
@@ -222,6 +223,7 @@ export function createHeroScene(
   let motionEnabled = true;
   const hero = host.closest<HTMLElement>(".a-hero");
   const textNodes = hero?.querySelectorAll<HTMLElement>(".a-identity > *");
+  let lastRgb = '', lastPulse = '', lastResources = '', telemetryAt = 0;
   function state(next: HeroPhase, reason?: "image" | "webgl") {
     phase = next;
     host.dataset.phase = next;
@@ -253,18 +255,20 @@ export function createHeroScene(
     auraUniforms.pulse.value = atmosphere.pulse;
     auraUniforms.ring.value = atmosphere.ring;
     auraUniforms.radius.value = atmosphere.radius;
-    hero?.style.setProperty(
-      "--hero-rgb",
-      `${Math.round(atmosphere.r * 255)}, ${Math.round(atmosphere.g * 255)}, ${Math.round(atmosphere.b * 255)}`,
-    );
-    hero?.style.setProperty("--hero-pulse", String(atmosphere.pulse));
+    const rgb = `${Math.round(atmosphere.r * 255)}, ${Math.round(atmosphere.g * 255)}, ${Math.round(atmosphere.b * 255)}`;
+    const pulse = atmosphere.pulse.toFixed(3);
+    if (rgb !== lastRgb) { hero?.style.setProperty('--hero-rgb', rgb); lastRgb = rgb; }
+    if (pulse !== lastPulse) { hero?.style.setProperty('--hero-pulse', pulse); lastPulse = pulse; }
     aura.position.x = 0.15 - eased.x * 0.09;
     renderer.render(scene, camera);
-    host.dataset.frames = String(++frameCount);
-    host.dataset.resources = `${renderer.info.memory.geometries},${renderer.info.memory.textures}`;
+    frameCount++;
+    const now = performance.now();
+    if (now - telemetryAt >= 500) { host.dataset.frames = String(frameCount); telemetryAt = now; }
+    const resources = `${renderer.info.memory.geometries},${renderer.info.memory.textures}`;
+    if (resources !== lastResources) { host.dataset.resources = resources; lastResources = resources; }
   }
   function tick(time: number) {
-    const interval = compact ? 1 / 30 : 1 / 60;
+    const interval = compact && !busy ? 1 / 30 : 1 / 60;
     if (time - lastFrame < interval - 0.001) return;
     const dt = Math.min(time - lastFrame || interval, 0.05);
     lastFrame = time;
@@ -350,13 +354,16 @@ export function createHeroScene(
     atmosphere.pulse = atmosphere.ring = 0;
     atmosphere.intensity = C.glowIntensity;
   }
+  let bufferWidth = 0, bufferHeight = 0, bufferRatio = 0;
   function resize() {
     const rect = host.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
     compact = rect.width < 450;
-    renderer.setPixelRatio(
-      Math.min(devicePixelRatio, compact ? C.mobileDpr : C.desktopDpr),
-    );
-    renderer.setSize(Math.max(rect.width, 1), Math.max(rect.height, 1));
+    const w = Math.round(rect.width), h = Math.round(rect.height), ratio = scenePixelRatio(w, h, devicePixelRatio);
+    if (w !== bufferWidth || h !== bufferHeight || ratio !== bufferRatio) {
+      renderer.setDrawingBufferSize(w, h, ratio);
+      bufferWidth = w; bufferHeight = h; bufferRatio = ratio;
+    }
     camera.aspect = rect.width / Math.max(rect.height, 1);
     const halfWidth = compact ? 1.95 : 2.55;
     camera.position.set(

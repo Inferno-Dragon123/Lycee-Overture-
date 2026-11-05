@@ -35,6 +35,7 @@ import "~/assets/css/filter-workbench.css";
 import "~/assets/css/workbench-visual.css";
 import "~/assets/css/mobile-workbench.css";
 import "~/assets/css/orbit-actions.css";
+import "~/assets/css/home-rendering.css";
 import OrbitBackground from "./OrbitBackground.vue";
 import ConceptPages from "./ConceptPages.vue";
 import DeckLoomV3 from "./deck/DeckLoomV3.vue";

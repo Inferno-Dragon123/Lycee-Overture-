@@ -17,12 +17,9 @@ onBeforeUnmount(() => { stopped = true; clearInterval(timer); });
 </script>
 <template>
   <section class="site-announcements" aria-label="站点更新公告">
-    <h2>更新公告</h2>
-    <p class="announcement-intro">功能调整与修复记录，与项目 GitHub 提交同步更新。</p>
-    <p v-if="feed?.release" class="announcement-release">当前已发布 <a :href="feed.release.url" target="_blank" rel="noopener noreferrer">{{ feed.release.sha.slice(0, 7) }}</a><time v-if="feed.release.publishedAt" :datetime="feed.release.publishedAt">{{ date(feed.release.publishedAt) }}</time></p>
     <p v-if="busy && !feed" role="status">正在读取更新公告…</p>
     <p v-if="error" role="alert">{{ error }}</p>
-    <p v-if="feed?.stale" role="status">GitHub 暂时不可用，{{ feed.unavailable ? '可先查看当前已发布版本。' : '暂时显示上次同步的更新记录。' }}</p>
+    <p v-if="feed?.stale" role="status">GitHub 暂时不可用，{{ feed.unavailable ? '暂时没有可用的更新记录，请稍后重试。' : '暂时显示上次同步的更新记录。' }}</p>
     <OrbitButton v-if="error || feed?.stale" variant="outline" tone="neutral" :busy="busy" @click="load">重试读取公告</OrbitButton>
     <ol v-if="feed?.items.length" class="announcement-list">
       <li v-for="item in feed.items" :key="item.sha">
@@ -37,9 +34,6 @@ onBeforeUnmount(() => { stopped = true; clearInterval(timer); });
 </template>
 <style scoped>
 .site-announcements { min-width: 0; color: var(--ink); }
-h2 { font-size: 28px; line-height: 1.35; margin-bottom: 12px; }
-.announcement-intro { font-size: 14px; line-height: 1.7; }
-.announcement-release { display: flex; flex-wrap: wrap; gap: 8px 12px; padding-block: 16px; border-bottom: 1px solid var(--line); font-size: 13px; }
 .announcement-list { list-style: none; padding: 0; margin: 0; }
 .announcement-list li { padding-block: 20px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
 .announcement-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; font-variant-numeric: tabular-nums; }

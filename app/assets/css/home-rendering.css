@@ -1,0 +1,32 @@
+/* Retain the existing artwork, palette and motion; bound their compositing cost. */
+.concept-orbit .a-wall { contain: paint; }
+.concept-orbit .a-wall-track { animation-play-state: paused; }
+.concept-orbit .a-wall-row[data-wall-active="true"] .a-wall-track { animation-play-state: running; }
+.concept-orbit .a-paused .a-wall-row .a-wall-track { animation-play-state: paused; }
+
+/* These near-opaque gradients do not need to re-blur the moving wall underneath. */
+.concept-orbit .a-shortcuts .a-shortcut {
+  backdrop-filter: var(--home-navigation-backdrop, none);
+  contain: paint;
+}
+.concept-orbit .a-home .a-wave-visual { will-change: auto; }
+@media (hover: hover) and (pointer: fine) {
+  .concept-orbit .a-home .a-wave-visual { will-change: transform; }
+}
+
+.concept-orbit .a-quick { grid-template-areas: "draw shortcuts"; }
+.concept-orbit .a-quick.has-results { grid-template-areas: "draw shortcuts" "results results"; }
+.concept-orbit .a-draw { grid-area: draw; }
+.concept-orbit .a-shortcuts { grid-area: shortcuts; }
+.concept-orbit .a-draw-results { grid-area: results; }
+.concept-orbit .a-draw-results img { height: auto; aspect-ratio: 5 / 7; object-fit: contain; }
+@media (max-width: 900px) {
+  .concept-orbit .a-quick { grid-template-areas: "draw" "shortcuts"; }
+  .concept-orbit .a-quick.has-results { grid-template-areas: "draw" "results" "shortcuts"; }
+  .concept-orbit .a-draw-results > div { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .concept-orbit .a-draw .a-draw-stage[data-amount="7"]:not([data-sequence="0"]) { height: clamp(500px, 140vw, 600px); }
+  .concept-orbit .a-draw-fallback-many { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px; }
+  .concept-orbit .a-draw-results > div { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+}

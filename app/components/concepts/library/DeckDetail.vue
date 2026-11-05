@@ -19,6 +19,7 @@ const route = useRoute(),
 const router = useRouter();
 const returnTo = computed(() => deckReturnPath(route.query.from, !!route.query.publication));
 const returnLabel = computed(() => returnTo.value.startsWith('/concepts/orbit/community') ? '← 返回卡组社区' : '← 我的卡组');
+const canPublish = computed(() => !route.query.publication && !returnTo.value.startsWith('/concepts/orbit/community'));
 function returnToSource(event: MouseEvent) {
   if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button === 0) {
     event.preventDefault();
@@ -141,7 +142,7 @@ async function publication(meta: {
   description: string;
   cover: string;
 }) {
-  if (!deck.value || publishBusy.value) return;
+  if (!canPublish.value || !deck.value || publishBusy.value) return;
   publishBusy.value = true;
   error.value = "";
   try {
@@ -206,7 +207,7 @@ function add() {
           ]"
         /><OrbitButton variant="outline" tone="neutral" @click="tools">导入并打开工具</OrbitButton
         ><OrbitButton variant="outline" tone="neutral" @click="hand">导入并跳转起手模拟</OrbitButton
-        ><OrbitButton variant="outline" tone="neutral" @click="publish = true">
+        ><OrbitButton v-if="canPublish" variant="outline" tone="neutral" @click="publish = true">
           {{ publicationInfo ? "修改发布信息" : "发布到卡组社区" }}
         </OrbitButton>
       </div>
@@ -273,6 +274,7 @@ function add() {
         </div>
       </section>
       <DeckSaveDialog
+        v-if="canPublish"
         v-model:open="publish"
         :title="publicationInfo ? '修改发布信息' : '发布到卡组社区'"
         :name="deck.name"
