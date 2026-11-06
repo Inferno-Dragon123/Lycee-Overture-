@@ -13,11 +13,11 @@ export async function readLegacyPostgres(query: URLSearchParams, db: Database = 
   if (query.has('id')) {
     const id = query.get('id')!;
     if (!/^p_[A-Za-z0-9_-]{1,100}$/.test(id)) throw createError({ statusCode: 400, message: '无效卡组编号' });
-    const row = (await db.query(`SELECT ${fields},d.cards ${joins} WHERE p.id=$1 AND p.status='public' AND NOT p.moderated`, [id])).rows[0];
+    const row = (await db.query(`SELECT ${fields},d.cards ${joins} WHERE p.id=$1 AND p.status='public' AND p.source <> 'community' AND NOT p.moderated`, [id])).rows[0];
     if (!row) throw createError({ statusCode: 404, message: '卡组不存在或已下架' });
     return json({ ...row, schemaVersion: 1, canEdit: false });
   }
-  const values: unknown[] = [], where = ["p.status='public'", 'NOT p.moderated'];
+  const values: unknown[] = [], where = ["p.status='public'", "p.source <> 'community'", 'NOT p.moderated'];
   const add = (value: unknown) => { values.push(value); return '$'+values.length; };
   const source = query.get('source');
   if (source) {

@@ -77,7 +77,12 @@ export async function loadLegacyWorkflow(query: Record<string, unknown>, hydrate
       url.searchParams.append(key, String(v));
   }
   try {
-    if (query.id) return await request(url) as LegacyItem;
+    if (query.id) {
+      const item = await request(url) as LegacyItem;
+      if (!['official', 'official_user', 'official_tournament'].includes(item.source || ''))
+        throw createError({ statusCode: 404, message: '旧用户发布已下架，请从我的卡组重新发布。' });
+      return item;
+    }
     const search = String(query.q || "")
         .normalize("NFKC")
         .toLowerCase(),

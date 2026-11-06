@@ -5,6 +5,7 @@ import {
   matchesDeck,
   totalCards,
   type LibraryDeck,
+  deckCoverUrl,
 } from "#shared/domain/deck-library";
 import DeckSearchBar from "./DeckSearchBar.vue";
 import WorkflowDialog from "../WorkflowDialog.vue";
@@ -34,8 +35,7 @@ const visible = computed(() =>
   ),
 );
 const cover = (d: LibraryDeck) =>
-  state.catalog.byCode.value.get(d.cover || Object.keys(d.quantities)[0] || "")
-    ?.img;
+  deckCoverUrl(d, state.catalog.byCode.value);
 onMounted(() => {
   library.load();
   void state.catalog.load();
@@ -123,7 +123,7 @@ async function remove() {
     <WorkflowDialog
       v-model:open="deleteOpen"
       :title="`删除${deleteKind}`"
-      :description="deleteKind === '草稿' ? '将清空当前草稿和编辑内容，删除后无法恢复。' : '将删除我的卡组中的这份保存记录，删除后无法恢复。已发布的社区卡组不受影响。'"
+      :description="deleteKind === '草稿' ? '将清空当前草稿和编辑内容，删除后无法恢复。' : '将删除这份私人卡组；同步成功后关联的社区发布也会删除，删除后无法恢复。'"
       ><p class="delete-object-name">{{ deleting?.name }}</p>
       <p v-if="library.error.value" role="alert">{{ library.error.value }}</p>
       <template #footer><OrbitButton variant="outline" tone="neutral" @click="deleteOpen = false">取消</OrbitButton><OrbitButton tone="danger" @click="remove"><Trash2 aria-hidden="true" />确认删除{{ deleteKind }}</OrbitButton></template></WorkflowDialog

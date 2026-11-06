@@ -2,6 +2,7 @@ import fixtures from "~/demo/fixtures.json";
 import type { ShowcaseCard } from "~/demo/collection";
 import { updateShowcaseQuantity } from "#shared/domain/deck-loom";
 import { validateOrbitQuantities } from "#shared/domain/deck-loom-v3";
+import { isCustomDeckCover } from '#shared/domain/deck-library';
 
 export const concepts = [
   {
@@ -191,7 +192,7 @@ export function useShowcase() {
       name: deckName.value.trim() || "我的构筑",
       quantities: { ...validQuantities.value },
       description: deckDescription.value,
-      cover: count(deckCover.value)
+      cover: (count(deckCover.value) || isCustomDeckCover(deckCover.value))
         ? deckCover.value
         : Object.keys(validQuantities.value)[0],
       resume: resumePath.value,

@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { emptyDeckSearch, type LibraryDeck } from "#shared/domain/deck-library";
+import { emptyDeckSearch, deckCoverUrl, type LibraryDeck } from "#shared/domain/deck-library";
 import DeckSearchBar from "./library/DeckSearchBar.vue";
 import ChoiceListbox from "./ChoiceListbox.vue";
 import WorkflowDialog from "./WorkflowDialog.vue";
 import CardSearch from "./CardSearch.vue";
 import OrbitButton from "./OrbitButton.vue";
-import { Trash2 } from "lucide-vue-next";
 const state = useShowcase(),
   account = useWorkflowAccount();
+const library = usePracticeDecks();
+const cloud = usePersonalCloud();
 const route = useRoute();
 const root = ref<HTMLElement>();
 const view = useState('community-workbench-view', () => ({ filters: emptyDeckSearch(), source: 'all', page: 1, codes: [] as string[], match: 'all' }));
@@ -24,6 +25,8 @@ interface Item extends LibraryDeck {
   cover_code?: string;
   updatedAt?: string;
   legacy?: boolean;
+  canEdit?: boolean;
+  sourceDeckId?: string;
 }
 const result = useState<{
   items: Item[];
@@ -83,38 +86,35 @@ onBeforeUnmount(() => {
   requestId++;
 });
 const cover = (d: Item) =>
-  state.catalog.byCode.value.get(
-    d.cover || d.cover_code || Object.keys(d.quantities || {})[0] || "",
-  )?.img;
+  deckCoverUrl({ ...d, cover: d.cover || d.cover_code, quantities: d.quantities || {} }, state.catalog.byCode.value);
+function canEdit(item: Item) { return !!account.user.value && item.canEdit === true && !item.legacy && !!item.sourceDeckId; }
+async function edit(item: Item) {
+  if (!canEdit(item)) return;
+  library.load();
+  const original = library.decks.value.find(deck => deck.id === item.sourceDeckId);
+  if (!original) { error.value = '请先完成个人卡组同步，再编辑私人原件。'; return; }
+  await state.editSaved(original);
+}
 async function manage(item: Item, action: string) {
   if (pendingId.value) return;
   pendingId.value = item.id;
   error.value = "";
   try {
+    if (action === 'publish' && !await cloud.flush()) throw new Error(cloud.error.value || '私人卡组尚未同步，请同步后重试。');
+    const latest = action === 'publish' && item.sourceDeckId
+      ? await $fetch<Item>('/api/workflow/community', { query: { sourceDeckId: item.sourceDeckId } }) : item;
     await $fetch("/api/workflow/community", {
-      method: action === "delete" ? "DELETE" : "PATCH",
-      body: { id: item.id, version: item.version, action },
+      method: "PATCH",
+      body: { id: item.id, version: latest.version, action },
     });
-    if (action === "delete") deleting.value = null;
     await load();
-    if (action === "delete") {
-      await nextTick();
-      root.value?.querySelector<HTMLElement>('button:not(:disabled), a[href]')?.focus();
-    }
   } catch (e) {
     error.value =
-      (e as { data?: { message: string } }).data?.message || "操作失败";
+      (e as { data?: { message: string } }).data?.message || (e as Error).message || "操作失败";
   } finally {
     pendingId.value = null;
   }
 }
-const deleting = ref<Item | null>(null),
-  confirmDelete = computed({
-    get: () => !!deleting.value,
-    set: (v) => {
-      if (!v) deleting.value = null;
-    },
-  });
 </script>
 <template>
   <section ref="root" class="community-workbench">
@@ -170,14 +170,18 @@ const deleting = ref<Item | null>(null),
             <b>预览卡组 →</b>
           </div></NuxtLink
         >
-        <div v-if="source === 'mine'" class="library-card-actions">
+        <div v-if="canEdit(deck)" class="library-card-actions">
+          <OrbitButton variant="ghost" tone="neutral" @click="edit(deck)">编辑该卡组</OrbitButton>
+          <OrbitButton v-if="source === 'mine' && deck.status === 'public'" variant="ghost" tone="neutral" :disabled="!!pendingId" @click="manage(deck, 'publish')">更新公开版本</OrbitButton>
+          <template v-if="source === 'mine'">
           <OrbitButton variant="ghost" tone="neutral" :busy="pendingId === deck.id" :disabled="!!pendingId"
             @click="
               manage(deck, deck.status === 'public' ? 'unpublish' : 'publish')
             "
           >
             {{ deck.status === "public" ? "下架" : "重新公开" }}</OrbitButton
-          ><OrbitButton variant="ghost" tone="danger" :disabled="!!pendingId" @click="error = ''; deleting = deck"><Trash2 aria-hidden="true" />删除发布</OrbitButton>
+          >
+          </template>
         </div>
       </article>
     </div>
@@ -214,12 +218,6 @@ const deleting = ref<Item | null>(null),
           </OrbitButton></template
         ></CardSearch
       ></WorkflowDialog
-    ><WorkflowDialog
-      v-model:open="confirmDelete"
-      title="删除发布"
-      description="该发布将从社区删除且无法恢复，已保存的本地副本不受影响。"
-      ><p class="delete-object-name">{{ deleting?.name }}</p><p v-if="error" role="alert">{{ error }}</p>
-      <template #footer><OrbitButton variant="outline" tone="neutral" :disabled="!!pendingId" @click="deleting = null">取消</OrbitButton><OrbitButton tone="danger" :busy="!!pendingId" @click="deleting && manage(deleting, 'delete')"><Trash2 aria-hidden="true" />确认删除</OrbitButton></template></WorkflowDialog
     >
   </section>
 </template>

@@ -12,14 +12,19 @@ export default defineEventHandler(async (event) => {
     query = getQuery(event),
     user = await workflowUser(
       event,
-      event.method !== "GET" || query.mine === "1",
+      event.method !== "GET" || query.mine === "1" || !!query.sourceDeckId,
     );
+  const exposed = (d: ReturnType<typeof store.list>[number]) => ({ ...publicPublication(d), canEdit: !!user && d.owner === user.id && !!d.sourceDeckId });
   if (event.method === "GET") {
+    if (query.sourceDeckId) {
+      const d = store.publicationForDeck(user!.id, String(query.sourceDeckId));
+      return d ? exposed(d) : null;
+    }
     if (query.id) {
       const d = store.get(String(query.id), user?.id);
       if (!d)
         throw createError({ statusCode: 404, message: "卡组不存在或未公开" });
-      return { ...publicPublication(d), canEdit: d.owner === user?.id };
+      return exposed(d);
     }
     const catalog = await getCatalog();
     let f: DeckSearch;
@@ -63,7 +68,7 @@ export default defineEventHandler(async (event) => {
       const requested = Number(query.page || 1);
       if (!Number.isSafeInteger(requested) || requested < 1) throw createError({ statusCode: 400, message: '页码无效' });
       return communityFeed({ source, page: requested, filters: f, codes, match: String(query.match || 'all'), catalog: catalog.byCode,
-        local: store.list().map(publicPublication), suppressed: store.legacyPublicationIds() });
+        local: store.list().map(exposed), suppressed: store.legacyPublicationIds() });
     }
     const all = store
       .list(query.mine === "1" ? user!.id : undefined)
@@ -85,7 +90,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: "页码无效" });
     const page = Math.min(requested, pages);
     return {
-      items: all.slice((page - 1) * 20, page * 20).map(publicPublication),
+      items: all.slice((page - 1) * 20, page * 20).map(exposed),
       total: all.length,
       page,
       pages,
@@ -98,17 +103,13 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   try {
     let deck;
-    if (event.method === "POST" || body.action === "edit") {
-      deck = validateLibraryDeck(
-        {
-          id: "new",
-          name: body.name,
-          description: body.description,
-          cover: body.cover,
-          quantities: body.cards,
-        },
-        true,
-      );
+    if (body.action === 'edit') throw new Error('请先在我的卡组保存私人原件，再更新公开版本');
+    if (event.method === "POST" || body.action === 'publish') {
+      const original = event.method === 'POST'
+        ? store.personal(user!.id).data.library.saved.find(deck => deck.id === body.sourceDeckId)
+        : store.get(body.id, user!.id);
+      if (!original) throw new Error('私人卡组不存在或不属于当前账号，请先同步我的卡组');
+      deck = validateLibraryDeck(original, true);
       const catalog = await getCatalog();
       if (
         Object.keys(deck.quantities).some((code) => !catalog.byCode.has(code))
@@ -116,7 +117,7 @@ export default defineEventHandler(async (event) => {
         throw new Error("卡组含未收录卡牌");
     }
     if (event.method === "POST")
-      return publicPublication(store.publish(user!.id, user!.name, deck!));
+      return exposed(store.publish(user!.id, user!.name, deck!, body.sourceDeckId));
     const updated = store.update(
       user!.id,
       body.id,
@@ -124,7 +125,7 @@ export default defineEventHandler(async (event) => {
       event.method === "DELETE" ? "delete" : body.action,
       deck,
     );
-    return updated ? publicPublication(updated) : { deleted: true };
+    return updated ? exposed(updated) : { deleted: true };
   } catch (e) {
     throw createError({ statusCode: 400, message: (e as Error).message });
   }

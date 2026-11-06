@@ -1,5 +1,5 @@
 """Ownership coverage for old and current SQLite schemas; no private values logged."""
-TABLES = {'personal_data':'owner','personal_history':'owner','publications':'owner','cardbacks':'owner','profiles':'id',
+TABLES = {'personal_data':'owner','personal_history':'owner','publications':'owner','deck_publications':'owner','deck_covers':'owner','deck_retirement_archive':'owner','cardbacks':'owner','profiles':'id',
           'strategy_articles':'owner','strategy_media':'owner','strategy_snapshots':'owner','player_groups':'owner'}
 
 def workflow_owners(db):

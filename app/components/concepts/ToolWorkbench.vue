@@ -310,6 +310,7 @@ const dimensions: [keyof PrintSettings, string][] = [
         />
         <form v-if="source === 'official'" class="official-deck-import" @submit.prevent="importOfficial">
           <label>官网卡组链接<input v-model="officialUrl" type="url" maxlength="2000" placeholder="https://lycee-tcg.com/d/?d=…" required :disabled="officialBusy" /></label>
+          <p>支持官网卡组、lyc.ee 短链接和官网攻略文章；攻略需包含唯一完整卡组。</p>
           <OrbitButton type="submit" variant="outline" tone="neutral" :busy="officialBusy">解析并导入官网卡组</OrbitButton>
           <p v-if="officialError" role="alert">{{ officialError }}</p>
           <p v-if="officialDeck" role="status">已导入：{{ officialDeck.name }} · {{ totalCards(officialDeck.quantities) }} 张</p>

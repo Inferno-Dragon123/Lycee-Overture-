@@ -76,7 +76,7 @@ export class StrategyStore {
     this.db.prepare('INSERT INTO strategy_snapshots VALUES(?,?,?)').run(id,owner,JSON.stringify(snapshot));return snapshot;
   }
   snapshotData(id:string,owner:string){const row=this.db.prepare('SELECT data FROM strategy_snapshots WHERE id=? AND owner=?').get(id,owner);return row?JSON.parse(String(row.data)) as StrategySnapshot:null;}
-  groups(owner?:string){return this.db.prepare(owner?'SELECT * FROM player_groups WHERE owner=?':'SELECT * FROM player_groups').all(...(owner?[owner]:[])).map(r=>({...JSON.parse(String(r.data)),id:String(r.id),revision:Number(r.revision),canEdit:r.owner===owner}) as StrategyGroup).filter(g=>owner||(g.public&&new Date(g.expiresAt).getTime()>Date.now()));}
+  groups(owner?:string){return this.db.prepare(owner?'SELECT * FROM player_groups WHERE owner=?':'SELECT * FROM player_groups').all(...(owner?[owner]:[])).map(r=>({...JSON.parse(String(r.data)),expiresAt:null,id:String(r.id),revision:Number(r.revision),canEdit:r.owner===owner}) as StrategyGroup).filter(g=>owner||g.public);}
   saveGroup(owner:string,author:string,id:string|undefined,revision:number,raw:unknown){if((id&&!/^g_[a-f0-9-]{36}$/.test(id))||!Number.isSafeInteger(revision)||revision<0||(!id&&revision!==0))fail('社群标识或版本无效');const body=validateGroup(raw);return this.transaction(()=>{
     if(id){const row=this.db.prepare('SELECT owner,revision FROM player_groups WHERE id=?').get(id);if(row?.owner!==owner)fail('无权修改此社群',403);if(Number(row.revision)!==revision)fail('社群已更新，请重新读取',409);}
     else if(this.groups(owner).length>=10)fail('每个账号最多发布10个社群');

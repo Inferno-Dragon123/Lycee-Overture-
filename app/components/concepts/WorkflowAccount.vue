@@ -8,7 +8,7 @@ const account = useWorkflowAccount(),
   resendSeconds = ref(0),
   nickname = ref("");
 const cloud = usePersonalCloud();
-const nicknameBusy = ref(false), logoutBusy = ref(false), cloudAction = ref<'sync' | 'merge' | 'remote' | ''>('');
+const nicknameBusy = ref(false), logoutBusy = ref(false), cloudAction = ref(false);
 const cloudBusy = computed(() => !!cloudAction.value || ['loading', 'syncing'].includes(cloud.status.value));
 let resendTimer: ReturnType<typeof setInterval> | undefined;
 onBeforeUnmount(() => clearInterval(resendTimer));
@@ -63,15 +63,13 @@ async function rename() {
     nicknameBusy.value = false;
   }
 }
-async function runCloud(action: 'sync' | 'merge' | 'remote') {
-  if (cloudBusy.value || account.busy.value || logoutBusy.value || (cloud.status.value === 'conflict' && action !== 'remote')) return;
-  cloudAction.value = action;
+async function recoverConflict() {
+  if (cloudBusy.value || account.busy.value || logoutBusy.value) return;
+  cloudAction.value = true;
   try {
-    if (action === 'sync') await cloud.flush();
-    else if (action === 'merge') await cloud.mergeGuestData();
-    else await cloud.useRemote();
+    await cloud.useRemote();
   } finally {
-    cloudAction.value = '';
+    cloudAction.value = false;
   }
 }
 </script>
@@ -87,12 +85,9 @@ async function runCloud(action: 'sync' | 'merge' | 'remote') {
         <label>昵称<input v-model="nickname" maxlength="24" required /></label
         ><OrbitButton type="submit" :busy="nicknameBusy" :disabled="account.busy.value">保存昵称</OrbitButton>
       </form>
-      <PersonalCloudStatus />
-      <p>卡组、草稿、展示背包和展示范围按账号保存。未登录时的数据不会自动归入账号。</p>
-      <div class="workflow-form">
-        <OrbitButton variant="outline" tone="neutral" :busy="cloudAction === 'sync' || cloud.status.value === 'syncing'" :disabled="cloudBusy || cloud.status.value === 'conflict' || account.busy.value || logoutBusy" @click="runCloud('sync')">立即同步</OrbitButton>
-        <OrbitButton variant="outline" tone="neutral" :busy="cloudAction === 'merge'" :disabled="cloudBusy || cloud.status.value === 'conflict' || account.busy.value || logoutBusy" @click="runCloud('merge')">合并未登录时的数据</OrbitButton>
-        <OrbitButton v-if="cloud.status.value === 'conflict'" variant="outline" tone="neutral" :busy="cloudAction === 'remote'" :disabled="cloudBusy || account.busy.value || logoutBusy" @click="runCloud('remote')">保留本机副本并读取云端</OrbitButton>
+      <div v-if="['conflict', 'error'].includes(cloud.status.value)" class="workflow-form">
+        <p v-if="cloud.error.value" role="alert">{{ cloud.error.value }}</p>
+        <OrbitButton v-if="cloud.status.value === 'conflict'" variant="outline" tone="neutral" :busy="cloudAction" :disabled="cloudBusy || account.busy.value || logoutBusy" @click="recoverConflict">保留本机副本并读取云端</OrbitButton>
         <OrbitButton v-if="cloud.status.value === 'error'" variant="ghost" tone="neutral" @click="reloadNuxtApp({ force: true })">重新连接</OrbitButton>
       </div>
       <OrbitButton

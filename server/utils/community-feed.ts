@@ -41,34 +41,35 @@ export async function communityFeed(options: {
   source: string; page: number; local: FeedItem[]; suppressed: string[]; filters: DeckSearch; codes: string[]; match: string; catalog: Map<string, Card>;
 }, load: LegacyLoader = loadLegacyWorkflow) {
   const { source, filters, codes, match, catalog } = options;
-  const query = { ...legacyFeedQuery(filters, codes, match), ...(source === 'all' ? {} : { source }) };
+  const query = legacyFeedQuery(filters, codes, match);
   if (source === 'official_tournament' || source === 'official_user') {
-    const result = await load({ ...query, page: options.page }) as LegacyPage;
-    return { ...result, pages: Math.max(1, result.pages), page: Math.max(1, result.page), items: result.items.map(item => ({ ...item, legacy: true })) };
+    const result = await load({ ...query, source, page: options.page }) as LegacyPage;
+    return { ...result, pages: Math.max(1, result.pages), page: Math.max(1, result.page), items: result.items.filter(item => item.source !== 'community').map(item => ({ ...item, canEdit: false, legacy: true })) };
   }
-  const first = await load({ ...query, page: 1 }, false) as LegacyPage;
-  if (!Array.isArray(first.items) || !Number.isSafeInteger(first.total) || first.total < 0)
-    throw createError({ statusCode: 502, message: '卡组来源返回了无效数据，请重试。' });
-  const suppressed = new Set(options.suppressed);
-  const hidden = await bounded([...suppressed], async id => {
-    try {
-      const detail = await load({ id }, false) as FeedItem;
-      return (source === 'all' || detail.source === 'community') && feedMatches(detail, filters, codes, match, catalog) ? 1 : 0;
-    } catch (error) { if (Number((error as { statusCode?: number }).statusCode) === 404) return 0; throw error; }
-  });
   const local = options.local.filter(item => feedMatches(item, filters, codes, match, catalog))
     .map(item => ({ ...item, legacy: false, source: 'community' }));
-  const total = Math.max(0, first.total - hidden.reduce<number>((sum, n) => sum + n, 0) + local.length);
+  // Old submissions lack a verified private-original link. Only official legacy
+  // sources remain readable until users explicitly publish their private decks.
+  if (source === 'community' || source === 'local') {
+    const total = local.length, pages = Math.max(1, Math.ceil(total / 20)), page = Math.min(options.page, pages);
+    return { items: local.sort((a, b) => time(b) - time(a)).slice((page - 1) * 20, page * 20), total, pages, page };
+  }
+  const sources = ['official_user', 'official_tournament'];
+  const first = await Promise.all(sources.map(source => load({ ...query, source, page: 1 }, false) as Promise<LegacyPage>));
+  if (first.some(result => !Array.isArray(result.items) || !Number.isSafeInteger(result.total) || result.total < 0))
+    throw createError({ statusCode: 502, message: '卡组来源返回了无效数据，请重试。' });
+  const total = local.length + first.reduce((sum, result) => sum + result.total, 0);
   const pages = Math.max(1, Math.ceil(total / 20)), page = Math.min(options.page, pages);
-  const prefixPages = Math.min(Math.max(1, first.pages), Math.ceil((page * 20 + suppressed.size) / 20));
-  if (prefixPages > 200) throw createError({ statusCode: 422, message: '结果过多，请先缩小系列或卡牌条件。' });
-  const rest = await bounded(Array.from({ length: Math.max(0, prefixPages - 1) }, (_, i) => i + 2), p => load({ ...query, page: p }, false) as Promise<LegacyPage>);
-  const legacy = [...new Map([first, ...rest].flatMap(p => p.items).filter(item => !suppressed.has(item.id)).map(item => [item.id, { ...item, legacy: true }])).values()];
+  if (page > 200) throw createError({ statusCode: 422, message: '结果过多，请先缩小系列或卡牌条件。' });
+  const requests = first.flatMap((result, index) => Array.from({ length: Math.max(0, Math.min(page, result.pages) - 1) }, (_, i) => ({ source: sources[index]!, page: i + 2 })));
+  const rest = await bounded(requests, request => load({ ...query, ...request }, false) as Promise<LegacyPage>);
+  const legacy = [...new Map([...first, ...rest].flatMap(result => result.items).filter(item => item.source !== 'community').map(item => [item.id, { ...item, canEdit: false, legacy: true }])).values()];
   // Stable sort preserves the upstream's ordering for equal legacy timestamps.
   const selected = [...local, ...legacy].sort((a, b) => time(b) - time(a) || Number(a.legacy) - Number(b.legacy)).slice((page - 1) * 20, page * 20);
   const items = await bounded(selected, async item => {
     if (!item.legacy) return item;
     const detail = await load({ id: item.id }, false) as LegacyItem;
+    if (detail.source === 'community') throw createError({ statusCode: 404, message: '旧用户发布已下架' });
     return { ...item, cover_code: Object.keys(detail.cards || {})[0] };
   });
   return { items, total, pages, page };

@@ -19,6 +19,13 @@ export interface DeckLibrary {
 }
 export const totalCards = (q: Record<string, number>) =>
   Object.values(q).reduce((a, b) => a + b, 0);
+/** Only server-created cover resources are accepted; external URLs never enter decks. */
+export function isCustomDeckCover(value: unknown): value is string {
+  return typeof value === 'string' && /^\/api\/workflow\/deck-covers\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(value);
+}
+export function deckCoverUrl(deck: Pick<LibraryDeck, 'cover' | 'quantities'>, catalog: Map<string, Card>) {
+  return isCustomDeckCover(deck.cover) ? deck.cover : catalog.get(deck.cover || Object.keys(deck.quantities)[0] || '')?.img;
+}
 export function validateLibraryDeck(
   raw: unknown,
   complete = false,
@@ -38,7 +45,8 @@ export function validateLibraryDeck(
     total = totalCards(quantities);
   if (!total || (complete && total !== 60))
     throw new Error(complete ? "保存卡组需要 60 张" : "草稿需要 1～60 张");
-  if (d.cover && !quantities[d.cover]) throw new Error("封面必须来自卡组");
+  if (d.cover !== undefined && typeof d.cover !== 'string') throw new Error('封面无效');
+  if (d.cover && !isCustomDeckCover(d.cover) && !quantities[d.cover]) throw new Error("封面必须来自卡组或已上传图片");
   return {
     id: d.id,
     name: d.name.trim(),

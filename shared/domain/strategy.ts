@@ -2,7 +2,7 @@ export type StrategyNode = { type: string; text?: string; attrs?: Record<string,
 export interface StrategyBody { title: string; summary: string; category: string; tags: string[]; cover: string; doc: StrategyNode }
 export interface StrategyArticle extends StrategyBody { id: string; revision: number; author: string; updatedAt: string; publishedAt?: string; hasPublished?: boolean; canEdit?: boolean }
 export interface StrategySnapshot { id: string; source: 'personal'|'community'|'legacy'; sourceId: string; name: string; author: string; quantities: Record<string,number>; sourceUrl: string; createdAt: string; unavailable?: boolean }
-export interface StrategyGroup { id: string; revision: number; name: string; region: string; platform: string; description: string; contact: string; url: string; expiresAt: string; author: string; public: boolean; canEdit?: boolean }
+export interface StrategyGroup { id: string; revision: number; name: string; region: string; platform: string; description: string; contact: string; url: string; expiresAt?: string | null; author: string; public: boolean; canEdit?: boolean }
 export const strategyCategories = ['构筑攻略','单卡分析','对局心得','入门教学','环境讨论'];
 export function strategyLineColor(raw: unknown): string | null {
   if (raw === undefined || raw === null || raw === '') return null;
@@ -124,7 +124,5 @@ export function rememberReference<T extends {key:string}>(recent:T[],item:T):T[]
 export function validateGroup(raw:any):Omit<StrategyGroup,'id'|'revision'|'author'|'canEdit'> {
   const field=(v:unknown,max:number,required=true)=>{if(typeof v!=='string'||v.trim().length>max||(required&&!v.trim()))throw new Error('请完整填写社群资料');return v.trim();};
   const name=field(raw.name,60),region=field(raw.region,40),platform=field(raw.platform,30),description=field(raw.description,1000),contact=field(raw.contact,300),url=raw.url?safeStrategyUrl(raw.url):'';
-  const expiry=new Date(raw.expiresAt);if(!Number.isFinite(expiry.getTime())||expiry.getTime()<=Date.now()||expiry.getTime()>Date.now()+366*86400000)throw new Error('有效期须在未来一年内');
-  if(raw.consent!==true)throw new Error('请确认加入方式随社群名片公开');
-  return {name,region,platform,description,contact,url,expiresAt:expiry.toISOString(),public:raw.public!==false};
+  return {name,region,platform,description,contact,url,expiresAt:null,public:raw.public!==false};
 }

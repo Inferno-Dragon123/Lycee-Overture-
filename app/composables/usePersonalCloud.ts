@@ -1,4 +1,4 @@
-import { emptyPersonal, validatePersonal, importPersonal, personalKey, type PersonalData, type PersonalSnapshot } from '#shared/domain/personal';
+import { emptyPersonal, validatePersonal, personalKey, type PersonalData, type PersonalSnapshot } from '#shared/domain/personal';
 import { parseLibrary } from '#shared/domain/deck-library';
 import { parseDisplayBag, migrateDisplayBag } from '~/demo/display-bag';
 
@@ -96,6 +96,7 @@ export function usePersonalCloud() {
     scope.owner.value = account.user.value?.id || null;
     if (!scope.owner.value) return;
     status.value = 'loading';
+    error.value = '';
     // SSR may carry the guest's construction cookie. Never auto-upload it to an account.
     useState<Record<string, number>>('showcase-quantities').value = {};
     useState<string>('showcase-deck-name').value = '我的构筑';
@@ -122,15 +123,6 @@ export function usePersonalCloud() {
     window.addEventListener('beforeunload', e => { if (dirty.value) { e.preventDefault(); e.returnValue = ''; } });
     if (status.value === 'pending') timer = setTimeout(() => void flush(), 1000);
   }
-  async function mergeGuestData() {
-    if (!scope.owner.value || status.value === 'conflict') return;
-    try {
-      const next = importPersonal(read(), read(null));
-      localStorage.setItem(scope.key(`recovery-${Date.now()}`), JSON.stringify(read()));
-      cache(next, true); write(next); generation++;
-      await flush(); location.reload();
-    } catch (e) { error.value = message(e); }
-  }
   async function useRemote() {
     if (!scope.owner.value || !confirm('将先保留本机恢复副本，再读取云端版本。继续吗？')) return;
     try {
@@ -140,5 +132,5 @@ export function usePersonalCloud() {
       cache(remote.data, false); write(remote.data); location.reload();
     } catch (e) { error.value = message(e); }
   }
-  return { status, error, revision, updatedAt, dirty, initialize, flush, mergeGuestData, useRemote };
+  return { status, error, revision, updatedAt, dirty, initialize, flush, useRemote };
 }

@@ -13,7 +13,7 @@ const root = ref<HTMLElement>();
 const items = ref<StrategyGroup[]>([]), mine = ref(false), q = ref(''), platform = ref('');
 const busy = ref(false), saving = ref(false), removing = ref(false), error = ref('');
 const open = ref(false), deleting = ref<StrategyGroup | null>(null), deleteOpen = ref(false);
-const empty = () => ({ id: undefined as string | undefined, revision: 0, name: '', region: '', platform: 'QQ', description: '', contact: '', url: '', expiresAt: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10), public: true, consent: false });
+const empty = () => ({ id: undefined as string | undefined, revision: 0, name: '', region: '', platform: 'QQ', description: '', contact: '', url: '' });
 const form = reactive(empty());
 const visible = computed(() => items.value.filter(g => [g.name, g.region, g.description].join(' ').toLowerCase().includes(q.value.toLowerCase()) && (!platform.value || g.platform === platform.value)));
 
@@ -37,7 +37,7 @@ function create() {
 }
 function edit(group: StrategyGroup) {
   if (saving.value || removing.value) return;
-  Object.assign(form, group, { expiresAt: group.expiresAt.slice(0, 10), consent: false });
+  Object.assign(form, { id: group.id, revision: group.revision, name: group.name, region: group.region, platform: group.platform, description: group.description, contact: group.contact, url: group.url });
   open.value = true;
 }
 async function save() {
@@ -45,7 +45,7 @@ async function save() {
   saving.value = true;
   error.value = '';
   try {
-    await strategyRequest('/api/workflow/groups', { method: 'POST', body: { ...form, expiresAt: form.expiresAt + 'T23:59:59+08:00' } });
+    await strategyRequest('/api/workflow/groups', { method: 'POST', body: { ...form } });
     open.value = false;
     await load();
   } catch (e) {
@@ -97,9 +97,9 @@ onMounted(() => void load());
         <small>{{ group.region }} · {{ group.platform }}</small><h3>{{ group.name }}</h3><p>{{ group.description }}</p>
         <details><summary>查看加入方式</summary><p class="group-contact">{{ group.contact }}</p><a v-if="group.url" :href="group.url" target="_blank" rel="noopener noreferrer">打开邀请链接 ↗</a></details>
         <footer>
-          <small>{{ group.author }} · 有效至{{ new Date(group.expiresAt).toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' }) }}{{ !group.public ? ' · 已撤回' : '' }}</small>
+          <small>{{ group.author }}{{ !group.public ? ' · 已撤回' : '' }}</small>
           <template v-if="group.canEdit">
-            <component :is="Action" variant="outline" tone="neutral" :disabled="saving || removing" @click="edit(group)">编辑／撤回</component>
+            <component :is="Action" variant="outline" tone="neutral" :disabled="saving || removing" @click="edit(group)">编辑</component>
             <component :is="Action" variant="ghost" tone="danger" :disabled="saving || removing" @click="deleting = group; error = ''; deleteOpen = true"><Trash2 v-if="isOrbit" :size="16" />删除</component>
           </template>
         </footer>
@@ -115,9 +115,6 @@ onMounted(() => void load());
         <label>简介<textarea v-model="form.description" maxlength="1000" rows="4" required /></label>
         <label>加入方式<input v-model="form.contact" maxlength="300" placeholder="群号、验证说明或联系办法" required /></label>
         <label>邀请链接（可选）<input v-model="form.url" type="url" maxlength="2000" /></label>
-        <label>有效期<input v-model="form.expiresAt" type="date" required /></label>
-        <label class="strategy-consent"><input v-model="form.public" type="checkbox" />公开展示</label>
-        <label class="strategy-consent"><input v-model="form.consent" type="checkbox" required />我确认这些加入信息可以随名片公开</label>
         <p v-if="error" role="alert">{{ error }}</p>
         <component :is="Action" :class="{ 'p-button': !isOrbit }" type="submit" :busy="saving" :disabled="saving">保存名片</component>
       </form>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import WorkflowDialog from "../WorkflowDialog.vue";
 import OrbitButton from "../OrbitButton.vue";
+import { isCustomDeckCover } from '#shared/domain/deck-library';
 const open = defineModel<boolean>("open", { required: true });
 const props = defineProps<{
   name: string;
@@ -15,6 +16,8 @@ const emit = defineEmits<{
   save: [{ name: string; description: string; cover: string }];
 }>();
 const catalog = useOrbitCatalog();
+const account = useWorkflowAccount();
+const uploading = ref(false), uploadError = ref(''), uploadedCover = ref('');
 const name = ref(""),
   description = ref(""),
   cover = ref("");
@@ -30,13 +33,32 @@ watch(open, (v) => {
     name.value = props.name;
     description.value = props.description || "";
     cover.value =
-      props.cover && props.quantities[props.cover]
+      props.cover && (props.quantities[props.cover] || isCustomDeckCover(props.cover))
         ? props.cover
         : cards.value[0]?.code || "";
+    uploadError.value = '';
+    uploadedCover.value = isCustomDeckCover(props.cover) ? props.cover : '';
   }
 });
+async function upload(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file || uploading.value) return;
+  uploadError.value = '';
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+    uploadError.value = '请选择 5 MiB 以内的 PNG、JPEG 或 WebP 图片。'; input.value = ''; return;
+  }
+  uploading.value = true;
+  try {
+    const body = new FormData(); body.append('image', file);
+    const result = await $fetch<{ url: string }>('/api/workflow/deck-covers', { method: 'POST', body });
+    uploadedCover.value = cover.value = result.url;
+  } catch (error) {
+    uploadError.value = (error as { data?: { message?: string } }).data?.message || '封面上传失败，请重试。';
+  } finally { uploading.value = false; input.value = ''; }
+}
 function submit() {
-  if (props.busy || !name.value.trim() || !cover.value) return;
+  if (props.busy || uploading.value || !name.value.trim() || !cover.value) return;
   emit("save", { name: name.value.trim(), description: description.value.trim(), cover: cover.value });
 }
 </script>
@@ -55,7 +77,12 @@ function submit() {
       </label>
       <fieldset>
         <legend>选择封面</legend>
+        <label v-if="account.user.value">上传自定义封面（PNG、JPEG、WebP，最大 5 MiB）<input type="file" accept="image/png,image/jpeg,image/webp" :disabled="uploading || busy" @change="upload" /></label>
+        <p v-else class="p-muted">登录后可上传自定义封面。</p>
+        <p v-if="uploading" role="status">正在上传封面…</p>
+        <p v-if="uploadError" role="alert">{{ uploadError }}</p>
         <div class="deck-cover-choices">
+          <button v-if="uploadedCover" type="button" aria-label="已上传的自定义封面" :aria-pressed="cover === uploadedCover" @click="cover = uploadedCover"><img :src="uploadedCover" alt="自定义封面预览" /><span>自定义封面</span></button>
           <button
             v-for="card in cards"
             :key="card.code"
@@ -71,7 +98,7 @@ function submit() {
         </div>
       </fieldset>
       <p v-if="error" role="alert">{{ error }}</p>
-      <OrbitButton type="submit" :busy="busy" :disabled="!name.trim() || !cover">确认保存</OrbitButton>
+      <OrbitButton type="submit" :busy="busy || uploading" :disabled="uploading || !name.trim() || !cover">确认保存</OrbitButton>
     </form></WorkflowDialog
   >
 </template>

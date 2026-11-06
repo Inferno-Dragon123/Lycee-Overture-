@@ -6,6 +6,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import {TextSelection,type SelectionBookmark} from '@tiptap/pm/state';
 import {CardMention,StrategyReferenceNode,StrategyImage,StrategyTextStyle,StrategyLineColors} from '~/utils/strategy-editor';
+import {createStrategyEditorSync} from '~/utils/strategy-editor-sync';
 import {strategyRefs,rememberReference,safeStrategyUrl,strategyCategories,validateStrategy,type StrategySnapshot} from '#shared/domain/strategy';
 import {printStrategy,type ArticlePrintOptions} from '~/utils/strategy-print';
 import ReferenceWorkspace from './ReferenceWorkspace.vue';
@@ -21,6 +22,7 @@ const props=defineProps<{id:string}>();
 const draft=useStrategyDraft(props.id),catalog=useOrbitCatalog(),state=useShowcase(),scope=usePersonalScope();
 const editor=shallowRef<Editor>(),workspace=ref<InstanceType<typeof ReferenceWorkspace>>(),workspaceOpen=ref(true),narrow=ref(false),preview=ref(false),publishPanel=ref(false),pdfPanel=ref(false),linkPanel=ref(false),captionPanel=ref(false),uploading=ref(0),busy=ref(false),error=ref('');
 const pageRoot=ref<HTMLElement>(),actionHeader=ref<HTMLElement>(),toolbarRoot=ref<HTMLElement>();
+const contentSync=createStrategyEditorSync(()=>editor.value,doc=>{draft.body.value.doc=doc;});
 const saving=computed(()=>draft.status.value==='正在保存');
 function saveNow(){if(!busy.value&&!saving.value&&draft.ready.value)void draft.flush();}
 let resizeObserver:ResizeObserver|undefined;
@@ -79,10 +81,10 @@ async function upload(file:File){
 function files(event:Event){const input=event.target as HTMLInputElement;if(input.files?.[0])void upload(input.files[0]);input.value='';}
 function init(){
   if(!import.meta.client||!draft.ready.value)return;
-  if(editor.value){if(JSON.stringify(editor.value.getJSON())!==JSON.stringify(draft.body.value.doc))editor.value.commands.setContent(draft.body.value.doc,{emitUpdate:false});return;}
+  if(editor.value){contentSync.replace(draft.body.value.doc);return;}
   editor.value=new Editor({
     content:draft.body.value.doc,extensions:[StarterKit.configure({heading:{levels:[2,3,4]},link:{openOnClick:false,protocols:['http','https']}}),StrategyImage,StrategyTextStyle,StrategyLineColors,Placeholder.configure({placeholder:'写下你的思路。输入 @ 搜索卡牌，或打开资料工作台。'}),CardMention.configure({resolveName:code=>catalog.byCode.value.get(code)?.name||code}),StrategyReferenceNode],
-    editorProps:{handleClick:(_view,_pos,event)=>{const anchor=(event.target as Element).closest<HTMLAnchorElement>('a[href]');if(!anchor||anchor.closest('.strategy-node,.strategy-inline-node'))return false;try{const url=safeStrategyUrl(anchor.href);event.preventDefault();window.open(url,'_blank','noopener,noreferrer');return true;}catch{return false;}},attributes:{'aria-label':'攻略正文',role:'textbox','aria-multiline':'true'},handleKeyDown:(_view,event)=>{if(event.key==='@'&&!event.ctrlKey&&!event.metaKey){event.preventDefault();bookmark=editor.value?.state.selection.getBookmark();selectionLocked=true;openWorkspace(true);return true;}return false;},
+    editorProps:{handleDOMEvents:{compositionend:()=>{contentSync.compositionEnd();return false;}},handleClick:(_view,_pos,event)=>{const anchor=(event.target as Element).closest<HTMLAnchorElement>('a[href]');if(!anchor||anchor.closest('.strategy-node,.strategy-inline-node'))return false;try{const url=safeStrategyUrl(anchor.href);event.preventDefault();window.open(url,'_blank','noopener,noreferrer');return true;}catch{return false;}},attributes:{'aria-label':'攻略正文',role:'textbox','aria-multiline':'true'},handleKeyDown:(_view,event)=>{if(event.key==='@'&&!event.ctrlKey&&!event.metaKey){event.preventDefault();bookmark=editor.value?.state.selection.getBookmark();selectionLocked=true;openWorkspace(true);return true;}return false;},
       handlePaste:(_view,event)=>{const file=event.clipboardData?.files[0];if(file){event.preventDefault();void upload(file);return true;}return false;},
       handleDrop:(view,event)=>{const file=event.dataTransfer?.files[0];if(file){event.preventDefault();const pos=view.posAtCoords({left:event.clientX,top:event.clientY})?.pos;if(pos!==undefined)bookmark=TextSelection.create(view.state.doc,pos).getBookmark();void upload(file);return true;}return false;}},
     onTransaction:({transaction})=>{if(bookmark&&transaction.docChanged)bookmark=bookmark.map(transaction.mapping);},
@@ -92,7 +94,7 @@ function init(){
   });
   bookmark=editor.value.state.selection.getBookmark();
 }
-watch(draft.ready,init);watch(()=>draft.body.value.doc,init,{deep:true});
+watch(draft.ready,init);watch(draft.body,init);
 function editLink(){closeToolbarMenus();restoreSelection();link.url=editor.value?.getAttributes('link').href||'';link.text=editor.value?.state.doc.textBetween(editor.value.state.selection.from,editor.value.state.selection.to)||'';linkPanel.value=true;}
 function applyLink(){try{const url=safeStrategyUrl(link.url);restoreSelection();const e=editor.value;if(!e)return;if(e.state.selection.empty)e.chain().focus().insertContent({type:'text',text:link.text||url,marks:[{type:'link',attrs:{href:url}}]}).run();else {const selected=e.state.doc.textBetween(e.state.selection.from,e.state.selection.to);if(link.text&&link.text!==selected){const marks=(e.state.doc.nodeAt(e.state.selection.from)?.marks||[]).filter(m=>m.type.name!=='link').map(m=>m.toJSON());e.chain().focus().insertContent({type:'text',text:link.text,marks:[...marks,{type:'link',attrs:{href:url,target:'_blank',rel:'noopener noreferrer'}}]}).run();}else e.chain().focus().setLink({href:url}).run();}linkPanel.value=false;}catch{error.value='请输入完整的HTTP或HTTPS链接';}}
 function imageCaption(){closeToolbarMenus();const attrs=editor.value?.getAttributes('image');caption.alt=attrs?.alt||'';caption.title=attrs?.title||'';captionPanel.value=true;}
@@ -102,7 +104,7 @@ function measure(){const globalHeight=document.querySelector('.p-header')?.getBo
 function trap(event:KeyboardEvent){if(!narrow.value||event.key!=='Tab')return;const nodes=[...(event.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('button:not(:disabled),input,select,textarea,a[href]')].filter(el=>el.getClientRects().length);const first=nodes[0],last=nodes.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}
 watch([workspaceOpen,narrow],([open,mobile])=>{if(!import.meta.client)return;if(open&&mobile){oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';nextTick(()=>workspace.value?.$el.querySelector('button')?.focus());}else if(document.body.style.overflow==='hidden')document.body.style.overflow=oldOverflow;});
 onMounted(async()=>{measure();resizeObserver=new ResizeObserver(measure);if(actionHeader.value)resizeObserver.observe(actionHeader.value);const globalHeader=document.querySelector('.p-header');if(globalHeader)resizeObserver.observe(globalHeader);window.addEventListener('resize',measure);window.visualViewport?.addEventListener('resize',positionToolbarMenu);document.addEventListener('pointerdown',toolbarOutside);try{const raw=JSON.parse(localStorage.getItem(scope.key('strategy-recent-v1'))||'[]');if(Array.isArray(raw))recent.value=raw.slice(0,24);}catch{}await catalog.load();init();});
-onBeforeUnmount(()=>{resizeObserver?.disconnect();editor.value?.destroy();window.removeEventListener('resize',measure);window.visualViewport?.removeEventListener('resize',positionToolbarMenu);document.removeEventListener('pointerdown',toolbarOutside);if(narrow.value&&workspaceOpen.value)document.body.style.overflow=oldOverflow;});
+onBeforeUnmount(()=>{resizeObserver?.disconnect();contentSync.destroy();editor.value?.destroy();window.removeEventListener('resize',measure);window.visualViewport?.removeEventListener('resize',positionToolbarMenu);document.removeEventListener('pointerdown',toolbarOutside);if(narrow.value&&workspaceOpen.value)document.body.style.overflow=oldOverflow;});
 </script>
 <template>
   <section ref="pageRoot" class="strategy-editor-page">
