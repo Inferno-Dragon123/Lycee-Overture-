@@ -77,9 +77,9 @@ export function makeTts(
     rotX: 0,
     rotY: 180,
     rotZ: 180,
-    scaleX: 1,
+    scaleX: 2.484764,
     scaleY: 1,
-    scaleZ: 1,
+    scaleZ: 2.484764,
   };
   let index = 100;
   for (const code of [...new Set(cards.map((c) => c.code))]) {

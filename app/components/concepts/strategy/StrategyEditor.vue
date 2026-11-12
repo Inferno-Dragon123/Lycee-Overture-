@@ -7,6 +7,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import {TextSelection,type SelectionBookmark} from '@tiptap/pm/state';
 import {CardMention,StrategyReferenceNode,StrategyImage,StrategyTextStyle,StrategyLineColors} from '~/utils/strategy-editor';
 import {createStrategyEditorSync} from '~/utils/strategy-editor-sync';
+import {StrategyCompositionGuard} from '~/utils/strategy-composition';
 import {strategyRefs,rememberReference,safeStrategyUrl,strategyCategories,validateStrategy,type StrategySnapshot} from '#shared/domain/strategy';
 import {printStrategy,type ArticlePrintOptions} from '~/utils/strategy-print';
 import ReferenceWorkspace from './ReferenceWorkspace.vue';
@@ -15,6 +16,7 @@ import TextFormatControls from './TextFormatControls.vue';
 import LineColorControl from './LineColorControl.vue';
 import SelectionTextToolbar from './SelectionTextToolbar.vue';
 import EditorLinkTools from './EditorLinkTools.vue';
+import StrategyInputDebug from './StrategyInputDebug.vue';
 import ChoiceListbox from '../ChoiceListbox.vue';
 import WorkflowDialog from '../WorkflowDialog.vue';
 import OrbitButton from '../OrbitButton.vue';
@@ -22,7 +24,8 @@ const props=defineProps<{id:string}>();
 const draft=useStrategyDraft(props.id),catalog=useOrbitCatalog(),state=useShowcase(),scope=usePersonalScope();
 const editor=shallowRef<Editor>(),workspace=ref<InstanceType<typeof ReferenceWorkspace>>(),workspaceOpen=ref(true),narrow=ref(false),preview=ref(false),publishPanel=ref(false),pdfPanel=ref(false),linkPanel=ref(false),captionPanel=ref(false),uploading=ref(0),busy=ref(false),error=ref('');
 const pageRoot=ref<HTMLElement>(),actionHeader=ref<HTMLElement>(),toolbarRoot=ref<HTMLElement>();
-const contentSync=createStrategyEditorSync(()=>editor.value,doc=>{draft.body.value.doc=doc;});
+const inputDebug=shallowRef<InstanceType<typeof StrategyInputDebug>>();
+const contentSync=createStrategyEditorSync(()=>editor.value,doc=>{draft.body.value.doc=doc;},(kind,detail)=>inputDebug.value?.record(kind,detail));
 const saving=computed(()=>draft.status.value==='正在保存');
 function saveNow(){if(!busy.value&&!saving.value&&draft.ready.value)void draft.flush();}
 let resizeObserver:ResizeObserver|undefined;
@@ -80,10 +83,11 @@ async function upload(file:File){
 }
 function files(event:Event){const input=event.target as HTMLInputElement;if(input.files?.[0])void upload(input.files[0]);input.value='';}
 function init(){
+  inputDebug.value?.record('draft:init',{ready:draft.ready.value,hasEditor:!!editor.value});
   if(!import.meta.client||!draft.ready.value)return;
   if(editor.value){contentSync.replace(draft.body.value.doc);return;}
   editor.value=new Editor({
-    content:draft.body.value.doc,extensions:[StarterKit.configure({heading:{levels:[2,3,4]},link:{openOnClick:false,protocols:['http','https']}}),StrategyImage,StrategyTextStyle,StrategyLineColors,Placeholder.configure({placeholder:'写下你的思路。输入 @ 搜索卡牌，或打开资料工作台。'}),CardMention.configure({resolveName:code=>catalog.byCode.value.get(code)?.name||code}),StrategyReferenceNode],
+    content:draft.body.value.doc,extensions:[StarterKit.configure({heading:{levels:[2,3,4]},link:{openOnClick:false,protocols:['http','https']}}),StrategyCompositionGuard.configure({onSkip:()=>inputDebug.value?.record('ime:skip-empty-transaction')}),StrategyImage,StrategyTextStyle,StrategyLineColors,Placeholder.configure({placeholder:'写下你的思路。输入 @ 搜索卡牌，或打开资料工作台。'}),CardMention.configure({resolveName:code=>catalog.byCode.value.get(code)?.name||code}),StrategyReferenceNode],
     editorProps:{handleDOMEvents:{compositionend:()=>{contentSync.compositionEnd();return false;}},handleClick:(_view,_pos,event)=>{const anchor=(event.target as Element).closest<HTMLAnchorElement>('a[href]');if(!anchor||anchor.closest('.strategy-node,.strategy-inline-node'))return false;try{const url=safeStrategyUrl(anchor.href);event.preventDefault();window.open(url,'_blank','noopener,noreferrer');return true;}catch{return false;}},attributes:{'aria-label':'攻略正文',role:'textbox','aria-multiline':'true'},handleKeyDown:(_view,event)=>{if(event.key==='@'&&!event.ctrlKey&&!event.metaKey){event.preventDefault();bookmark=editor.value?.state.selection.getBookmark();selectionLocked=true;openWorkspace(true);return true;}return false;},
       handlePaste:(_view,event)=>{const file=event.clipboardData?.files[0];if(file){event.preventDefault();void upload(file);return true;}return false;},
       handleDrop:(view,event)=>{const file=event.dataTransfer?.files[0];if(file){event.preventDefault();const pos=view.posAtCoords({left:event.clientX,top:event.clientY})?.pos;if(pos!==undefined)bookmark=TextSelection.create(view.state.doc,pos).getBookmark();void upload(file);return true;}return false;}},
@@ -95,6 +99,7 @@ function init(){
   bookmark=editor.value.state.selection.getBookmark();
 }
 watch(draft.ready,init);watch(draft.body,init);
+watch([draft.status,draft.ready,draft.revision,draft.conflict],()=>inputDebug.value?.record('draft:state',{status:draft.status.value,ready:draft.ready.value,revision:draft.revision.value,conflict:draft.conflict.value}));
 function editLink(){closeToolbarMenus();restoreSelection();link.url=editor.value?.getAttributes('link').href||'';link.text=editor.value?.state.doc.textBetween(editor.value.state.selection.from,editor.value.state.selection.to)||'';linkPanel.value=true;}
 function applyLink(){try{const url=safeStrategyUrl(link.url);restoreSelection();const e=editor.value;if(!e)return;if(e.state.selection.empty)e.chain().focus().insertContent({type:'text',text:link.text||url,marks:[{type:'link',attrs:{href:url}}]}).run();else {const selected=e.state.doc.textBetween(e.state.selection.from,e.state.selection.to);if(link.text&&link.text!==selected){const marks=(e.state.doc.nodeAt(e.state.selection.from)?.marks||[]).filter(m=>m.type.name!=='link').map(m=>m.toJSON());e.chain().focus().insertContent({type:'text',text:link.text,marks:[...marks,{type:'link',attrs:{href:url,target:'_blank',rel:'noopener noreferrer'}}]}).run();}else e.chain().focus().setLink({href:url}).run();}linkPanel.value=false;}catch{error.value='请输入完整的HTTP或HTTPS链接';}}
 function imageCaption(){closeToolbarMenus();const attrs=editor.value?.getAttributes('image');caption.alt=attrs?.alt||'';caption.title=attrs?.title||'';captionPanel.value=true;}
@@ -109,6 +114,7 @@ onBeforeUnmount(()=>{resizeObserver?.disconnect();contentSync.destroy();editor.v
 <template>
   <section ref="pageRoot" class="strategy-editor-page">
     <header ref="actionHeader" class="strategy-editor-header"><OrbitButton as-child variant="ghost" tone="neutral"><NuxtLink to="/concepts/orbit/learn?tab=mine">← 返回攻略</NuxtLink></OrbitButton><span aria-live="polite">{{ draft.status.value }}</span><div><OrbitButton variant="outline" tone="neutral" :busy="saving" :disabled="!draft.ready.value||busy" @click="saveNow">立即保存</OrbitButton><OrbitButton variant="outline" tone="neutral" :disabled="!draft.ready.value||busy" @click="preview=true">预览</OrbitButton><OrbitButton variant="outline" tone="neutral" :disabled="!draft.ready.value||busy||uploading>0" @click="pdfPanel=true">导出PDF</OrbitButton><OrbitButton :disabled="!draft.ready.value||busy||uploading>0" @click="publishPanel=true">{{ draft.published.value?'更新发布':'发布攻略' }}</OrbitButton></div></header>
+    <StrategyInputDebug v-if="editor" ref="inputDebug" :editor="editor" />
     <p v-if="error||draft.error.value" role="alert" class="strategy-error">{{ error||draft.error.value }} <OrbitButton variant="ghost" tone="neutral" :busy="saving" :disabled="busy" @click="saveNow">重试同步</OrbitButton></p>
     <div v-if="draft.conflict.value||!draft.ready.value&&draft.error.value" class="strategy-conflict"><OrbitButton variant="outline" tone="neutral" @click="draft.fork">把本机修改另存为新攻略</OrbitButton><OrbitButton variant="outline" tone="neutral" @click="draft.readCloud">保留恢复副本并读取云端</OrbitButton></div>
     <p v-if="!draft.account.user.value" class="reading-note">未登录：草稿仅保存在当前浏览器。登录后可在“我的攻略”主动导入游客草稿。<OrbitButton variant="ghost" tone="neutral" @click="state.utility.value='account'">登录</OrbitButton></p>

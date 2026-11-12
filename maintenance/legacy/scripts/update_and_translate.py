@@ -7,7 +7,6 @@ import argparse
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -22,6 +21,10 @@ from urllib.request import Request, urlopen
 sys.path.insert(0, str(Path(__file__).parent))
 from update_japanese_database import main as update_japanese_main, ROOT, WORK, DATABASE, sort_key, atomic_write
 from translation_terms import normalize_translation_terms
+from translation_identity import (align_translation_body, canonical_groups,
+    family_key, numeric_code, split_provenance)
+from translation_protection import PendingReview, ProtectedTranslation, review_digest
+from translation_span_review import review_pending
 
 CHINESE_DATABASE = ROOT / 'lycee-chinese-database-final.json'
 DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'
@@ -54,14 +57,15 @@ SYSTEM_PROMPT = """你是一个专业的日文卡牌游戏效果翻译专家。�
    サポート → 支援
    コンバート → 换装
 
-2. 保留原文的格式符号（如：[宣言]、[诱发]、[COST]、[切札]等）
+2. 保留原文的格式符号（如：[宣言]、[诱发]、[COST]、[切札]等），包括半角[]、全角［］、『』、<>、＜＞的字形和嵌套。方括号内的效果、条件和代价句仍需正常翻译，其内部名称按保护标记保留。
 3. 保持原文的分隔符（|）结构，不要改变其位置
 4. 除了卡牌效果和能力之外涉及到的其他专有名称（如角色名、作品名、技能名等）保持原文不翻译
 5. 所有角色、单位等战斗单位的数量量词统一用「个」，不使用「体」。
 6. 必须区分普通费用和同名基础能力：普通叙述中的「コスト」「ｺｽﾄ」译为「COST」，不得添加「能力」。只有基础能力词条「[コスト]」「[ｺｽﾄ]」（含冒号参数形式）译为「[COST能力]」；明确指代该基础能力的「コスト能力」可译为「COST能力」。本规则同样适用于构筑限制、登场费用、支付费用及产生的费用。
    例：構築制限:【[宙]】【コストが４点以下】 → 构筑限制:【[宙]】【COST为４点以下】
    例：[コスト] [月月]を発生する。このコストはアイテムの装備にのみ支払える。 → [COST能力] 产生[月月]。此COST仅可用于装备道具。
-   不得把整条含有「[コスト]」的效果一律视作能力名称；同一句中后续的普通「コスト」仍译为「COST」。原文英文符号「[COST]」保持原样，专有名称仍按第4条保留。"""
+   不得把整条含有「[コスト]」的效果一律视作能力名称；同一句中后续的普通「コスト」仍译为「COST」。原文英文符号「[COST]」保持原样，专有名称仍按第4条保留。
+7. __LO_开头的占位符由程序保护，代表名称、固定标识、术语或原始括号。逐字并按原顺序保留每一个占位符，不得拆分、改写、增删或重复。只翻译占位符之间的日文效果句。"""
 
 
 def now_iso():
@@ -113,6 +117,8 @@ def validate_translation(original, translated):
         raise ValueError('Empty translation')
     if translated.strip().startswith('```') or original.count('|') != translated.count('|'):
         raise ValueError('Translation changed the required format')
+    prepared = ProtectedTranslation(original)
+    translated, _ = prepared.repair(translated)
     # Chinese 无 and Japanese 無 denote the same colorless-cost symbol.
     # Restore that glyph only inside cost brackets, leaving ordinary Chinese alone.
     translated = re.sub(r'\[[雪月花宙日無无]+\]', lambda m: m[0].replace('无', '無'), translated)
@@ -120,18 +126,25 @@ def validate_translation(original, translated):
     tokens = lambda s: [t for t in re.findall(r'\[(?:[A-Z]+\d*|\d+|[雪月花宙日無]+)\]', unicodedata.normalize('NFKC', s)) if t != '[COST]']
     if tokens(original) != tokens(translated):
         raise ValueError('Translation changed effect/cost symbols')
-    translated, _, issues = normalize_translation_terms(original, translated)
+    hidden_original, hidden_translation, protected_names = prepared.mask_names(translated)
+    translated, _, issues = normalize_translation_terms(hidden_original, hidden_translation)
     if issues:
         raise ValueError('Translation terminology cannot be safely aligned: ' + '; '.join(issues))
+    for marker, value in protected_names.items():
+        if translated.count(marker) != 1:
+            raise ValueError('Terminology correction changed a protected identifier')
+        translated = translated.replace(marker, value)
+    translated, _ = prepared.repair(translated)
     return translated.strip()
 
 
 def call_deepseek(text, api_key, max_retries=3):
+    prepared = ProtectedTranslation(text)
     for attempt in range(max_retries):
         try:
             payload = json.dumps({'model': os.environ.get('DEEPSEEK_MODEL', DEEPSEEK_MODEL),
                 'messages': [{'role': 'system', 'content': SYSTEM_PROMPT + '\n术语表同样适用于全角片假名。保留方括号内的数字、费用符号、英文代码。只输出翻译结果，不要添加任何解释或注释。'},
-                             {'role': 'user', 'content': text}],
+                             {'role': 'user', 'content': prepared.encoded}],
                 'temperature': 0.3, 'thinking': {'type': 'disabled'}, 'max_tokens': 4096}).encode('utf-8')
             request = Request(DEEPSEEK_API_URL, data=payload, headers={
                 'Content-Type': 'application/json', 'Authorization': f'Bearer {api_key}'})
@@ -140,7 +153,8 @@ def call_deepseek(text, api_key, max_retries=3):
                 choice = json.load(response)['choices'][0]
             if choice.get('finish_reason') != 'stop':
                 raise ValueError('Incomplete translation: ' + str(choice.get('finish_reason')))
-            return validate_translation(text, choice['message']['content'])
+            restored = prepared.restore(choice['message']['content'])
+            return validate_translation(text, restored)
         except HTTPError as exc:
             exc.close()
             if exc.code < 500 and exc.code not in (408, 429):
@@ -153,48 +167,70 @@ def call_deepseek(text, api_key, max_retries=3):
         time.sleep(2 ** (attempt + 1))
 
 
-def translation_key(card):
-    base = re.match(r'LO-\d+', card['code'])[0]
-    return hashlib.sha256(json.dumps([base, card['japaneseText'], SYSTEM_PROMPT,
-        os.environ.get('DEEPSEEK_MODEL', DEEPSEEK_MODEL), 2], ensure_ascii=False).encode('utf-8')).hexdigest()
+def translation_key(card, source_text=None):
+    revision = {'prompt': SYSTEM_PROMPT, 'review': review_digest()}
+    return family_key(card, revision, os.environ.get('DEEPSEEK_MODEL', DEEPSEEK_MODEL), source_text)
 
 
-def translate_cards(new_cards, api_key, work_dir, workers=1, reuse=None, reuse_dates=None):
-    """Checkpoint each text group; identical variants keep their own code/name/cid."""
+def translate_cards(new_cards, api_key, work_dir, workers=1, reuse=None, reuse_dates=None,
+                    source_cards=None):
+    """Translate each numeric family once against its complete canonical source."""
     cache_dir = work_dir / 'translation-cache'
     cache_dir.mkdir(parents=True, exist_ok=True)
+    standards = canonical_groups(new_cards if source_cards is None else source_cards)
     groups = defaultdict(list)
     for card in new_cards:
-        groups[translation_key(card)].append(card)
+        groups[numeric_code(card['code'])].append(card)
     reuse = reuse or {}
     reuse_dates = reuse_dates or {}
 
     def translate_group(item):
-        key, cards = item
-        original = cards[0]['japaneseText'] or ''
+        base, cards = item
+        representative = (standards.get(base) or canonical_groups(cards)[base])[0]
+        source = representative.get('japaneseText') or ''
+        original, _ = split_provenance(source)
+        key = translation_key(representative, source)
         cache_file = cache_dir / (key + '.json')
         try:
             translated_at = now_iso()
+            text = None
             if not original.strip():
                 text = ''  # A card with no effect still needs a matching Chinese record.
-            elif key in reuse:
-                text = validate_translation(original, reuse[key])
-                # Copying an old translation to another card face isn't a new translation.
-                translated_at = reuse_dates.get(key) if text == reuse[key] else now_iso()
-            elif cache_file.exists():
-                cached = load_json(cache_file)
-                text = validate_translation(original, cached['text'])
-                translated_at = cached.get('translatedAt') if text == cached['text'] else now_iso()
-                if text != cached['text']:
-                    save_json(cache_file, {'text': text, 'sourceHash': key, 'translatedAt': translated_at})
             else:
+                ProtectedTranslation(original)  # Check complete source coverage before reuse or requests.
+            if text is None and key in reuse:
+                try:
+                    text = validate_translation(original, reuse[key])
+                    translated_at = reuse_dates.get(key) if text == reuse[key] else now_iso()
+                except PendingReview:
+                    raise
+                except ValueError:
+                    pass
+            if text is None and cache_file.exists():
+                try:
+                    cached = load_json(cache_file)
+                    text = validate_translation(original, cached['text'])
+                    translated_at = cached.get('translatedAt') if text == cached['text'] else now_iso()
+                    if text != cached['text']:
+                        save_json(cache_file, {'text': text, 'sourceHash': key, 'translatedAt': translated_at})
+                except PendingReview:
+                    raise
+                except (ValueError, KeyError):
+                    pass
+            if text is None:
                 if not api_key:
                     raise PermanentAPIError('DEEPSEEK_API_KEY is required for missing translations')
-                text = call_deepseek(original, api_key)
+                text = validate_translation(original, call_deepseek(original, api_key))
                 translated_at = now_iso()
                 save_json(cache_file, {'text': text, 'sourceHash': key, 'translatedAt': translated_at})
                 time.sleep(1)
-            return [dict(c, japaneseText=text, **({'translatedAt': translated_at} if translated_at else {})) for c in cards], []
+            return [dict(c, japaneseText=text + split_provenance(c.get('japaneseText'))[1],
+                         **({'translatedAt': translated_at} if translated_at else {})) for c in cards], []
+        except PendingReview as error:
+            report_file = work_dir / 'source-review-pending' / (key + '.json')
+            review_pending(original, error.inventory, api_key, report_file)
+            return [], [{'code': card['code'], 'error': str(error), 'pendingSpans': error.pending,
+                         'reviewFile': str(report_file)} for card in cards]
         except PermanentAPIError:
             raise
         except Exception as exc:
@@ -302,21 +338,26 @@ def main(argv=None):
     originals = {c['code']: c for c in jp['cards']}
     existing = {c['code']: c for c in zh['cards']}
     missing = sorted([c for code, c in originals.items() if code not in existing], key=sort_key)
-    reuse_values = defaultdict(set)
+    source_groups = canonical_groups(jp['cards'])
+    reuse = {}
     reuse_dates = {}
-    for code, card in existing.items():
-        if code in originals and card.get('japaneseText'):
+    for group in source_groups.values():
+        standard = group[0]
+        standard_body, _ = split_provenance(standard.get('japaneseText'))
+        key = translation_key(standard, standard.get('japaneseText'))
+        for source in group:
+            card = existing.get(source['code'])
+            if not card or not card.get('japaneseText'):
+                continue
             try:
-                reusable = validate_translation(originals[code]['japaneseText'], card['japaneseText'])
+                old_body = align_translation_body(source.get('japaneseText'), card['japaneseText'])
+                reusable = validate_translation(standard_body, old_body) if standard_body.strip() else ''
             except ValueError:
-                continue  # Do not copy an uncertain legacy translation to a new card face.
-            reuse_values[translation_key(originals[code])].add(reusable)
-            key = translation_key(originals[code])
-            date = card.get('translatedAt') if reusable == card['japaneseText'] else now_iso()
-            if date and (not reuse_dates.get(key) or date > reuse_dates[key]):
-                reuse_dates[key] = date
-    reuse = {key: next(iter(values)) for key, values in reuse_values.items() if len(values) == 1}
-    print(f'Missing Chinese: {len(missing)} cards, {len({translation_key(c) for c in missing})} text groups', flush=True)
+                continue
+            reuse[key] = reusable
+            reuse_dates[key] = card.get('translatedAt') if reusable == old_body else now_iso()
+            break
+    print(f'Missing Chinese: {len(missing)} cards, {len({numeric_code(c["code"]) for c in missing})} numeric groups', flush=True)
     work_dir = WORK / 'alignment'
     if args.dry_run:
         save_json(work_dir / 'dry-run.json', {'checkedAt': now_iso(), 'missingChinese': [c['code'] for c in missing]})
@@ -325,7 +366,8 @@ def main(argv=None):
     # Detect edits made while long-running translation requests were in flight.
     before = {p: p.read_bytes() for p in (DATABASE, CHINESE_DATABASE) if p.exists()}
     try:
-        translated, failed = translate_cards(missing, os.environ.get('DEEPSEEK_API_KEY'), work_dir, args.workers, reuse, reuse_dates)
+        translated, failed = translate_cards(missing, os.environ.get('DEEPSEEK_API_KEY'), work_dir,
+            args.workers, reuse, reuse_dates, source_cards=jp['cards'])
     except PermanentAPIError as exc:
         if not args.allow_missing_translations:
             raise

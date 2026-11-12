@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "fa9a2807def8a2da96d5840d705275e0bfea3a374693ec7ff43c92c2529c8d65",
+  "catalogVersion": "b29c81e0d6cd5df1cf306df478b79801cb97d6dc54927fa4acaaa2291a9432bd",
   "cardCount": 9956,
   "sourceRepository": "https://github.com/Inferno-Dragon123/lycee-toolbox",
   "sourceHashes": {
@@ -30,6 +30,14 @@
       "sourceCatalogVersion": "ecc75354130e3835f40160f997a98472819feba5b63aec99fa79c903cac45f0d",
       "correctedCards": 50,
       "correctedOccurrences": 61
+    },
+    "protected-spans-and-variant-reuse-v1": {
+      "sourceCatalogVersion": "fa9a2807def8a2da96d5840d705275e0bfea3a374693ec7ff43c92c2529c8d65",
+      "correctedCards": 6862,
+      "correctedGroups": 4546,
+      "pendingGroups": 0,
+      "protectionVersion": "reviewed-spans-v2",
+      "identityVersion": "numeric-family-v1"
     }
   }
 }

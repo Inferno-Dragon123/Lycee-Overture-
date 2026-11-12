@@ -28,6 +28,7 @@ let failed=false;
 try{
   await run('/usr/bin/python3',['scripts/update_and_translate.py','--catalog','--no-git','--allow-missing-translations','--workers','2']);
   await run('/usr/bin/python3',['scripts/repair_cost_terms.py','--source-root',workspace,'--apply','--report','/var/lib/lycee-v2-maintenance/cost-corrections.json']);
+  await run('/usr/bin/python3',['scripts/repair_card_translations.py','--source-root',workspace,'--apply','--allow-pending','--report','/var/lib/lycee-v2-maintenance/translation-corrections.json']);
   await run('/usr/local/bin/node',[path.join(release,'scripts/catalog/import.mjs'),workspace]);
   report.catalog=await publishWorkspace(workspace);for(const name of sourceFiles)await fs.chmod(path.join(workspace,name),0o644);report.cards='success';
 }catch{failed=true;report.cards='failed';console.error('Card update failed; retaining the last published catalog and raw inputs.');await restoreSources();}
