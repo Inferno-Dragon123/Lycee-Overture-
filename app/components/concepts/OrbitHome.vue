@@ -25,6 +25,7 @@ import ChoiceListbox from "./ChoiceListbox.vue";
 import OrbitButton from "./OrbitButton.vue";
 import CardStage from "./CardStage.vue";
 import HeroStage from "./HeroStage.vue";
+import EasyLcLogo from "./EasyLcLogo.vue";
 import DemoBackpack from "./DemoBackpack.vue";
 import { demoCards, demoSeries, useShowcase } from "~/composables/useShowcase";
 import { useCollection } from "~/composables/useCollection";
@@ -261,7 +262,7 @@ onBeforeUnmount(() => dispose());
     </div>
     <section class="a-hero">
       <div class="a-identity">
-        <h1 class="max-w-6xl">站名占位符</h1>
+        <h1 class="a-home-brand"><span class="sr-only">EasyLc</span><EasyLcLogo /></h1>
         <p>lycee overture卡查工具箱</p>
         <button class="a-start" @click="start">
           开始使用 <ArrowDown :size="19" />
@@ -523,3 +524,24 @@ onBeforeUnmount(() => dispose());
     >
   </div>
 </template>
+
+<style scoped>
+.a-identity .a-home-brand {
+  width: min(100%, 430px);
+  line-height: 1;
+}
+.a-identity > p {
+  margin-top: 24px;
+}
+@media (max-width: 600px) {
+  .a-hero {
+    padding-top: 112px;
+  }
+  .a-identity .a-home-brand {
+    width: min(100%, 280px);
+  }
+  .a-identity > p {
+    margin-top: 20px;
+  }
+}
+</style>

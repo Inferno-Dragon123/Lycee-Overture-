@@ -38,6 +38,7 @@ import "~/assets/css/orbit-actions.css";
 import "~/assets/css/home-rendering.css";
 import OrbitBackground from "./OrbitBackground.vue";
 import ConceptPages from "./ConceptPages.vue";
+import EasyLcLogo from "./EasyLcLogo.vue";
 import DeckLoomV3 from "./deck/DeckLoomV3.vue";
 import { DECK_CARD_LIMIT } from "#shared/domain/deck";
 import DeckLoom from "./deck/DeckLoom.vue";
@@ -318,10 +319,18 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
     <OrbitBackground v-if="variant === 'orbit' && section !== 'home'" />
     <a class="p-skip" href="#concept-content">跳转到内容</a>
     <header class="p-header" :inert="mobileDeckOpen">
-      <NuxtLink :to="path()" class="p-brand" aria-label="返回首页"
-        ><span class="p-brand-mark">L<span /></span
-        ><span>lycée<span class="p-brand-sub">OVERTURE</span></span></NuxtLink
+      <NuxtLink
+        :to="path()"
+        class="p-brand"
+        :class="{ 'easylc-home-link': variant === 'orbit' }"
+        :aria-label="variant === 'orbit' ? 'EasyLc 返回首页' : '返回首页'"
       >
+        <EasyLcLogo v-if="variant === 'orbit'" />
+        <template v-else>
+          <span class="p-brand-mark">L<span /></span>
+          <span>lycée<span class="p-brand-sub">OVERTURE</span></span>
+        </template>
+      </NuxtLink>
       <nav class="p-nav" aria-label="主导航">
         <NuxtLink
           v-for="item in nav"
@@ -420,7 +429,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
           官方及相应权利人所有，数据为自收集，未经允许不可商用。
         </p>
         <div class="p-footer-bottom">
-          <span>站名占位符·LO卡查工具箱</span><a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank" rel="noopener noreferrer">浙ICP备2026085247号</a>
+          <span>EasyLc · LO卡查工具箱</span><a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank" rel="noopener noreferrer">浙ICP备2026085247号</a>
         </div>
       </footer>
     </div>
@@ -697,3 +706,16 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
     ></DialogRoot>
   </div>
 </template>
+
+<style scoped>
+.p-brand.easylc-home-link {
+  flex: 0 0 auto;
+  width: 116px;
+  gap: 0;
+}
+@media (max-width: 600px) {
+  .p-brand.easylc-home-link {
+    width: 104px;
+  }
+}
+</style>

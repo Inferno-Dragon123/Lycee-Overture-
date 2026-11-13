@@ -7,7 +7,7 @@ import { isCustomDeckCover } from '#shared/domain/deck-library';
 export const concepts = [
   {
     id: "orbit",
-    name: "站名占位符·LO卡查工具箱",
+    name: "EasyLc · LO卡查工具箱",
     subtitle: "沉浸、光轨、立体卡片",
     letter: "A",
   },

@@ -33,7 +33,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: "zh-CN" },
-      title: "站名占位符·LO卡查工具箱",
+      title: "EasyLc · LO卡查工具箱",
       meta: [
         {
           name: "description",
@@ -41,7 +41,7 @@ export default defineNuxtConfig({
         },
         { name: "robots", content: "noindex, nofollow" },
       ],
-      link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+      link: [{ rel: "icon", type: "image/svg+xml", href: "/easylc/icon.svg" }],
     },
   },
   typescript: { strict: true },
