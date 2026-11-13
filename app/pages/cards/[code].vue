@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ArrowLeft, Layers } from "lucide-vue-next";
 import type { Card } from "#shared/domain/catalog";
+import { cardTextureSource } from "#shared/domain/card-artwork";
+import ConceptShell from "~/components/concepts/ConceptShell.vue";
+import ConceptCatalog from "~/components/concepts/ConceptCatalog.vue";
 const route = useRoute();
+const { selected } = useShowcase();
 const { data: card, error } = await useFetch<Card>(
   () => `/api/cards/${encodeURIComponent(String(route.params.code))}`,
 );
@@ -11,19 +14,17 @@ if (error.value || !card.value)
     statusMessage: "未找到这张卡牌",
   });
 useSeoMeta({
-  title: () => `${card.value?.name} · ${card.value?.code} | Lycee 卡查`,
+  title: () => `${card.value?.name} · ${card.value?.code} | EasyLc`,
   description: () => card.value?.textZh.slice(0, 160),
+});
+onMounted(() => {
+  watch(card, (value) => {
+    if (value) selected.value = { ...value, img: cardTextureSource(value.img) };
+  }, { immediate: true });
 });
 </script>
 <template>
-  <main id="main-content" class="detail-page page-container">
-    <div class="page-back">
-      <NuxtLink to="/cards" class="text-link"
-        ><ArrowLeft :size="16" />返回卡牌图鉴</NuxtLink
-      ><NuxtLink to="/builder" class="text-link"
-        ><Layers :size="16" />本地卡组</NuxtLink
-      >
-    </div>
-    <CardDetail v-if="card" :card="card" />
-  </main>
+  <ConceptShell variant="orbit" section="cards">
+    <ConceptCatalog variant="orbit" />
+  </ConceptShell>
 </template>

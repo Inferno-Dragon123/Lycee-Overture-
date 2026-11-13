@@ -16,7 +16,7 @@ export type ShowcaseCard = Pick<
   | "sp"
   | "textJa"
   | "textZh"
->;
+> & Partial<Pick<Card, "cost" | "dmg">>;
 export function normalizeCollection(value: unknown): Record<string, number> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   return Object.fromEntries(

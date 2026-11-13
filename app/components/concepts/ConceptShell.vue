@@ -619,8 +619,8 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
                   v-for="(value, key) in {
                     类别: categoryNames[selected.category] || selected.category,
                     属性: selected.attribute,
-                    费用: catalog.byCode.value.get(selected.code)?.cost || '—',
-                    DMG: catalog.byCode.value.get(selected.code)?.dmg ?? '—',
+                    费用: catalog.byCode.value.get(selected.code)?.cost || selected.cost || '—',
+                    DMG: catalog.byCode.value.get(selected.code)?.dmg ?? selected.dmg ?? '—',
                     版本:
                       catalog.byCode.value.get(selected.code)?.version ||
                       selected.version,
