@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "repository": "https://github.com/Inferno-Dragon123/Lycee-Overture-.git",
-  "sourceCommit": "5b24e7dad98bc56b453f7e55e2ba86463ceac937",
+  "sourceCommit": "ca4753daa1c3b1a11c4149c4d1f82cd05f3073ab",
   "buildReady": true,
   "files": {
     ".env.example": "f1493d158f5351e866daa393e7f95998344b36bd408c5df79e9532685b1b7d97",
@@ -39,7 +39,7 @@
     "app/components/concepts/CardSearch.vue": "7cdd1a57be9fc197df63a2bf9d26f9d50d38f055ca14672938fcba097e62aceb",
     "app/components/concepts/CardStage.vue": "fe2f6f024772890bd5aad4a06d77c9c0ac9e5250a9e5b0ed059a005e5a100d0a",
     "app/components/concepts/ChoiceListbox.vue": "ee9dac9f139b19896863b51eca5f20280100ba92c53b0a250171d7fdce8a10c8",
-    "app/components/concepts/CommunityWorkbench.vue": "805dddb09b5574496ddd82e0113e1dc06f08d91ca793a1b577906e43d2e2d4c6",
+    "app/components/concepts/CommunityWorkbench.vue": "cd97c2fd21ec503c74981e45dd41833c1e2d2745cb146e5b94f81e152306d56d",
     "app/components/concepts/ConceptCatalog.vue": "976e1d19166e232dfaeac375f0258f9da22a67632db2dc67dd91183ecd95d2e1",
     "app/components/concepts/ConceptHome.vue": "9391a49da831edd3e1bd758d7f13916c6a2bef60bba4fcfa61e1bc4c0c1cf993",
     "app/components/concepts/ConceptPages.vue": "be64d61f1dc47b8867249c01256f4870791eaba0891dab05624b7684858fefaa",
@@ -321,7 +321,7 @@
     "server/utils/tencent-database.ts": "21671cd1970c79b0ddcd457fc7ec79c8ff661b55bd6b43f559c2b882d682e620",
     "server/utils/workflow-auth.ts": "572d23248c7a990a938943e9f82f7d5a751fa2a0be60eaacd219b3a28eaf38a5",
     "server/utils/workflow-legacy.ts": "758d9020959ad98df75a11e342fee8b52785dcd659052eb5332f0878f2bfdb5f",
-    "server/utils/workflow-store.ts": "6dfcd0e93e603ee38c9bdb33c0ad5ae654c88882f147a2b3a1a6fbd74825a5aa",
+    "server/utils/workflow-store.ts": "75f477c4930bf6d3720cdeb334c84b5fc864562e203b075e6b995ec4845162f8",
     "services/auth/auth-mail.js": "c416d28e6fb7fbbc5978eed7c0750a677e94ee196b1cbf7b6b2f0d1c65e13406",
     "services/auth/bootstrap.mjs": "2f83e09a83bbdaf3c0aa3aea1fa0b0c841b7a4442f763f66c713b0bfbc09c153",
     "services/auth/local-auth.js": "cf2189e8a77798b7d11a2ed7cded8714863ad3be63828647e0840b9d6ddd03c6",

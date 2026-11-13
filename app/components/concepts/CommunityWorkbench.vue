@@ -75,7 +75,7 @@ watch(
   },
   { deep: true },
 );
-watch(page, () => { clearTimeout(timer); timer = setTimeout(load, 220); });
+watch([page, cloud.revision], () => { clearTimeout(timer); timer = setTimeout(load, 220); });
 onMounted(async () => {
   await state.catalog.load();
   await account.refresh();

@@ -95,7 +95,9 @@ export class WorkflowStore {
   private publicationRow(row: Record<string, unknown>, mine: boolean): Publication | null {
     const raw = mine ? row.draft : row.published;
     if (!raw) return null;
-    return { ...JSON.parse(String(raw)), id: String(row.id), owner: String(row.owner), sourceDeckId: String(row.source_deck_id),
+    const deck = JSON.parse(String(raw));
+    const draft = mine ? deck : JSON.parse(String(row.draft));
+    return { ...deck, name: draft.name || deck.name, id: String(row.id), owner: String(row.owner), sourceDeckId: String(row.source_deck_id),
       version: Number(row.revision), status: row.published ? 'public' : 'private', hasPublished: !!row.published, updatedAt: String(row.updated_at) };
   }
   publicationForDeck(owner: string, sourceDeckId: string) {
