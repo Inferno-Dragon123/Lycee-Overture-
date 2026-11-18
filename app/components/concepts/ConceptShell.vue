@@ -429,7 +429,11 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
           官方及相应权利人所有，数据为自收集，未经允许不可商用。
         </p>
         <div class="p-footer-bottom">
-          <span>EasyLc · LO卡查工具箱</span><a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank" rel="noopener noreferrer">浙ICP备2026085247号</a>
+          <span>EasyLc · LO卡查工具箱</span>
+          <div class="p-footer-records">
+            <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank" rel="noopener noreferrer">浙ICP备2026085247号</a>
+            <a href="https://beian.mps.gov.cn/#/query/webSearch?code=33019202003376" target="_blank" rel="noopener noreferrer">浙公网安备33019202003376号</a>
+          </div>
         </div>
       </footer>
     </div>
@@ -708,6 +712,17 @@ onBeforeUnmount(() => window.removeEventListener("keydown", closeWithEscape));
 </template>
 
 <style scoped>
+.p-footer-bottom,
+.p-footer-records {
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.p-footer-records {
+  display: flex;
+}
+.p-footer-records a {
+  white-space: nowrap;
+}
 .p-brand.easylc-home-link {
   flex: 0 0 auto;
   width: 116px;

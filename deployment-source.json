@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "repository": "https://github.com/Inferno-Dragon123/Lycee-Overture-.git",
-  "sourceCommit": "ca4753daa1c3b1a11c4149c4d1f82cd05f3073ab",
+  "sourceCommit": "e2770479cdbbe3de001f50dbc10ba31de3e052d0",
   "buildReady": true,
   "files": {
     ".env.example": "f1493d158f5351e866daa393e7f95998344b36bd408c5df79e9532685b1b7d97",
@@ -43,7 +43,7 @@
     "app/components/concepts/ConceptCatalog.vue": "976e1d19166e232dfaeac375f0258f9da22a67632db2dc67dd91183ecd95d2e1",
     "app/components/concepts/ConceptHome.vue": "9391a49da831edd3e1bd758d7f13916c6a2bef60bba4fcfa61e1bc4c0c1cf993",
     "app/components/concepts/ConceptPages.vue": "be64d61f1dc47b8867249c01256f4870791eaba0891dab05624b7684858fefaa",
-    "app/components/concepts/ConceptShell.vue": "35561982f0aacdda268d5cff7510814b6cf1fed985c6d412618d5b2bf2c3e79c",
+    "app/components/concepts/ConceptShell.vue": "29e2fa534cb838d25a65ddb8aa372338c7da108d4a53a93ab863e460dd170703",
     "app/components/concepts/DemoBackpack.vue": "a95d25dad1b745d6c960198f15fd74a8f80e19dfd09c9c43e88ff0d61082dd70",
     "app/components/concepts/EasyLcLogo.vue": "3ad18da39bc5019d86c54107257531a3be60b3071ae594953315dd24c8934c71",
     "app/components/concepts/HeroStage.vue": "755b657a0d5af5365f73d9abbfcc54dbd8ea356e8b8b57250061eb468d36d465",
