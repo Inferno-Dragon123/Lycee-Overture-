@@ -3,6 +3,7 @@ import { Search, ArrowUpRight, ArrowLeft, ArrowRight, Plus, Minus, X, SlidersHor
 import { demoSeries, useShowcase } from "~/composables/useShowcase";
 import { useCatalogFilters } from "~/composables/useCatalogFilters";
 import { DECK_CARD_LIMIT } from "#shared/domain/deck";
+import { cardPageSizes } from "#shared/domain/filters";
 import ChoiceListbox from "./ChoiceListbox.vue";
 import FilterPanel from "./filters/FilterPanel.vue";
 import OrbitButton from "./OrbitButton.vue";
@@ -11,11 +12,36 @@ const props = defineProps<{ variant: string }>();
 const Action = computed(() => props.variant === 'orbit' ? OrbitButton : 'button');
 const route = useRoute();
 const { mode, filtersOpen, selected, total, count, change, editable } = useShowcase();
-const { draft, applied, pending, error, result, chips, apply, clear, pageTo, sortBy, remove, engine } = useCatalogFilters();
+const { draft, applied, pending, error, result, chips, apply, clear, pageTo, resizePage, sortBy, remove, engine } = useCatalogFilters();
 const q = computed({ get: () => draft.value.q, set: value => { draft.value.q = value; } });
 const version = computed({ get: () => applied.value.version[0] || "", set: value => { draft.value.version = value ? [value] : []; void apply(); } });
 const seriesPage = ref(1);
 const cardPage = computed({ get: () => result.value.page, set: value => { void pageTo(value); } });
+const pageInput = ref(String(cardPage.value));
+const pageError = ref("");
+const pageSizeOptions = cardPageSizes.map(size => ({ value: String(size), label: `每页 ${size} 张` }));
+const pageSize = computed({
+  get: () => String(applied.value.pageSize),
+  set: (value) => {
+    const size = cardPageSizes.find(option => String(option) === value);
+    if (size !== undefined) void resizePage(size);
+  },
+});
+watch([cardPage, pageSize, () => route.fullPath], () => {
+  pageInput.value = String(cardPage.value);
+  pageError.value = "";
+});
+function jumpToPage() {
+  const input = pageInput.value.normalize("NFKC").trim();
+  const page = Number(input);
+  if (!/^\d+$/.test(input) || page < 1 || page > result.value.pages) {
+    pageError.value = `请输入 1 至 ${result.value.pages} 之间的页码。`;
+    return;
+  }
+  pageInput.value = String(page);
+  pageError.value = "";
+  if (page !== cardPage.value) cardPage.value = page;
+}
 const selectedSeries = computed(() => demoSeries.find(s => s.code === route.query.series));
 const seriesView = computed(() => !selectedSeries.value && route.query.view !== "all" && !chips.value.length);
 const currentSeries = computed(() => demoSeries.slice((seriesPage.value - 1) * 8, seriesPage.value * 8));
@@ -184,33 +210,48 @@ async function applyPreview() {
               </div>
             </article>
           </TransitionGroup>
-          <div
-            v-if="result.pages > 1"
-            class="p-pagination"
+          <nav
+            v-if="cards.length"
+            class="p-pagination catalog-pagination"
             aria-label="卡牌分页"
           >
-            <component :is="Action"
-              class="p-icon"
-              variant="ghost" tone="neutral" size="icon"
-              :disabled="cardPage === 1"
-              aria-label="上一页卡牌"
-              @click="cardPage--"
-            >
-              <ArrowLeft :size="18" />
-            </component>
-            <span
-              >{{ cardPage }} <i>/ {{ result.pages }}</i></span
-            >
-            <component :is="Action"
-              class="p-icon"
-              variant="ghost" tone="neutral" size="icon"
-              :disabled="cardPage >= result.pages"
-              aria-label="下一页卡牌"
-              @click="cardPage++"
-            >
-              <ArrowRight :size="18" />
-            </component>
-          </div>
+            <div class="catalog-page-navigation">
+              <component :is="Action"
+                class="p-icon"
+                variant="ghost" tone="neutral" size="icon"
+                :disabled="cardPage === 1"
+                aria-label="上一页卡牌"
+                @click="cardPage--"
+              >
+                <ArrowLeft :size="18" />
+              </component>
+              <form v-if="result.pages > 1" class="catalog-page-jump" @submit.prevent="jumpToPage">
+                <input
+                  v-model="pageInput"
+                  type="text"
+                  inputmode="numeric"
+                  aria-label="跳转页码"
+                  :aria-invalid="!!pageError"
+                  :aria-describedby="pageError ? 'catalog-page-error' : undefined"
+                  @input="pageError = ''"
+                />
+                <i>/ {{ result.pages }}</i>
+                <component :is="Action" type="submit" variant="outline" tone="neutral" size="sm" class="catalog-page-submit">跳转</component>
+              </form>
+              <span v-else>1 <i>/ 1</i></span>
+              <component :is="Action"
+                class="p-icon"
+                variant="ghost" tone="neutral" size="icon"
+                :disabled="cardPage >= result.pages"
+                aria-label="下一页卡牌"
+                @click="cardPage++"
+              >
+                <ArrowRight :size="18" />
+              </component>
+            </div>
+            <ChoiceListbox v-model="pageSize" label="每页卡牌数量" hide-label :options="pageSizeOptions" />
+            <p v-if="pageError" id="catalog-page-error" role="alert">{{ pageError }}</p>
+          </nav>
           <div v-if="catalog.ready.value && !cards.length" class="p-blank">
             <Search :size="34" />
             <h3>没有符合条件的卡牌</h3>
@@ -222,3 +263,43 @@ async function applyPreview() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.catalog-pagination {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.catalog-page-navigation {
+  flex-wrap: wrap;
+}
+.catalog-page-navigation,
+.catalog-page-jump {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.catalog-page-jump input,
+.catalog-page-jump .catalog-page-submit {
+  height: 44px;
+}
+.catalog-page-jump input {
+  width: 64px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  text-align: center;
+}
+.catalog-page-jump input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.catalog-pagination > p {
+  flex-basis: 100%;
+  text-align: center;
+}
+</style>

@@ -31,6 +31,9 @@ export const modeFields = [
   "traitMode",
 ] as const;
 export const textFields = ["q", "code", "effect", "illustrator"] as const;
+export const cardPageSizes = [12, 24, 48] as const;
+const defaultCardPageSize = cardPageSizes[0];
+export type CardPageSize = (typeof cardPageSizes)[number];
 export type MultiField = (typeof multiFields)[number];
 export interface FilterModel {
   q: string;
@@ -60,6 +63,7 @@ export interface FilterModel {
   position: "any" | "yes" | "no";
   sort: "code-desc" | "code-asc" | "name";
   page: number;
+  pageSize: CardPageSize;
   excludeConstruction: boolean;
   excludeTitle: boolean;
   uniqueIdentity: boolean;
@@ -93,6 +97,7 @@ export function emptyFilters(): FilterModel {
     position: "any",
     sort: "code-desc",
     page: 1,
+    pageSize: defaultCardPageSize,
     excludeConstruction: false,
     excludeTitle: false,
     uniqueIdentity: false,
@@ -113,6 +118,7 @@ export function filterParams(f: FilterModel): URLSearchParams {
   if (f.position !== "any") p.set("position", f.position);
   if (f.sort !== "code-desc") p.set("sort", f.sort);
   if (f.page !== 1) p.set("page", String(f.page));
+  if (f.pageSize !== defaultCardPageSize) p.set("pageSize", String(f.pageSize));
   for (const key of [
     "excludeConstruction",
     "excludeTitle",
@@ -134,6 +140,7 @@ export function parseFilterParams(p: URLSearchParams): FilterModel {
     "position",
     "sort",
     "page",
+    "pageSize",
     "excludeConstruction",
     "excludeTitle",
     "uniqueIdentity",
@@ -168,6 +175,11 @@ export function parseFilterParams(p: URLSearchParams): FilterModel {
   if (p.has("page")) {
     if (!/^\d+$/.test(p.get("page")!)) throw new Error("无效的页码");
     f.page = Number(p.get("page"));
+  }
+  if (p.has("pageSize")) {
+    const size = cardPageSizes.find((value) => String(value) === p.get("pageSize"));
+    if (size === undefined) throw new Error("无效的每页卡牌数量");
+    f.pageSize = size;
   }
   for (const key of [
     "excludeConstruction",
@@ -280,6 +292,7 @@ export function createFilterEngine(cards: Card[]) {
     }
     if (!Number.isSafeInteger(f.page) || f.page < 1 || f.page > 10000)
       throw new Error("页码须为 1 至 10000 的整数");
+    if (!cardPageSizes.includes(f.pageSize)) throw new Error("无效的每页卡牌数量");
     if (
       !["any", "yes", "no"].includes(f.position) ||
       !["code-desc", "code-asc", "name"].includes(f.sort)
@@ -385,10 +398,10 @@ export function createFilterEngine(cards: Card[]) {
           : (f.sort === "code-asc" ? 1 : -1) *
             a.code.localeCompare(b.code, "en", { numeric: true }),
       );
-    const pages = Math.max(1, Math.ceil(matched.length / 12)),
+    const pages = Math.max(1, Math.ceil(matched.length / f.pageSize)),
       page = Math.min(f.page, pages);
     return {
-      cards: matched.slice((page - 1) * 12, page * 12),
+      cards: matched.slice((page - 1) * f.pageSize, page * f.pageSize),
       total: matched.length,
       pages,
       page,

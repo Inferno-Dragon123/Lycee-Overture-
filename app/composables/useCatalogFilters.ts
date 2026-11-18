@@ -9,6 +9,7 @@ import {
   filterChips,
   multiFields,
   rangeFields,
+  type CardPageSize,
   type FilterModel,
 } from "#shared/domain/filters";
 import { specialAbilityTerms } from "#shared/domain/special-abilities";
@@ -24,12 +25,11 @@ export function useCatalogFilters() {
   const applied = useState<FilterModel>("preview-filter-applied", emptyFilters);
   const error = useState("preview-filter-error", () => "");
   const pending = computed(() => {
-    const a = cloneFilters(draft.value),
-      b = cloneFilters(applied.value);
-    a.page = b.page = 1;
+    const a = { ...draft.value, page: 1, pageSize: applied.value.pageSize },
+      b = { ...applied.value, page: 1 };
     return filterParams(a).toString() !== filterParams(b).toString();
   });
-  let ownQuery = "";
+  let ownQuery: string | undefined;
   const toParams = () => {
     const p = new URLSearchParams();
     for (const [key, value] of Object.entries(route.query)) {
@@ -43,7 +43,9 @@ export function useCatalogFilters() {
     ([path], previous) => {
       const keepDraft = previous?.[0] === path && pending.value;
       const p = toParams();
-      if (p.toString() === ownQuery) return;
+      const fromCommit = p.toString() === ownQuery;
+      ownQuery = undefined;
+      if (fromCommit) return;
       try {
         const parsed = parseFilterParams(p);
         if (!catalog.ready.value) {
@@ -108,7 +110,7 @@ export function useCatalogFilters() {
       return false;
     }
   }
-  const apply = () => commit({ ...cloneFilters(draft.value), page: 1 });
+  const apply = () => commit({ ...cloneFilters(draft.value), page: 1, pageSize: applied.value.pageSize });
   let refreshTimer: ReturnType<typeof setTimeout> | undefined;
   watch(
     () => filterParams(draft.value).toString(),
@@ -124,9 +126,11 @@ export function useCatalogFilters() {
     if (ready && pending.value) void apply();
   });
   onBeforeUnmount(() => clearTimeout(refreshTimer));
-  const clear = () => commit(emptyFilters());
+  const clear = () => commit({ ...emptyFilters(), pageSize: applied.value.pageSize });
   const pageTo = (page: number) =>
     commit({ ...cloneFilters(applied.value), page }, false);
+  const resizePage = (pageSize: CardPageSize) =>
+    commit({ ...applied.value, page: 1, pageSize }, false);
   const sortBy = (sort: FilterModel["sort"]) =>
     commit({ ...cloneFilters(applied.value), sort, page: 1 });
   function remove(key: string, value: string) {
@@ -152,6 +156,7 @@ export function useCatalogFilters() {
     apply,
     clear,
     pageTo,
+    resizePage,
     sortBy,
     remove,
     label,
